@@ -142,7 +142,7 @@ for service in beat-the-crowd-api beat-the-crowd-app; do
 done
 ```
 
-This needs `run.services.setIamPolicy`, but no image rebuild or project-wide role grant to the deployer. See [Google's public-access documentation](https://docs.cloud.google.com/run/docs/authenticating/public). Rerun the public smoke test after changing access. The deployment script reports an access failure; it does not grant IAM roles automatically.
+This needs `run.services.setIamPolicy`, but no image rebuild or project-wide role grant to the deployer. See [Google's public-access documentation](https://docs.cloud.google.com/run/docs/authenticating/public). Rerun the public smoke test after changing access. Deployment requests public invocation through `--allow-unauthenticated`; if that fails, the script reports the access failure without running the suggested permission-remediation command automatically.
 
 ### Other failures
 
