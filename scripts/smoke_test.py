@@ -2,7 +2,7 @@ r"""Verify a deployed API through public HTTP, optionally including its front-en
 
     python scripts/smoke_test.py --api-url https://YOUR-API.run.app
     python scripts/smoke_test.py --api-url "$API_URL" --frontend-url "$APP_URL" \
-        --market-url https://polymarket.com/event/fed-decision-in-december \
+        --market-url https://polymarket.com/event/fed-decision-in-december-20260729232808632 \
         --output docs/deployment-verification.json
 
 Only requests is needed. No model or cloud credentials are loaded. A complete

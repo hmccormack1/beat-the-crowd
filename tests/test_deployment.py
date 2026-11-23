@@ -1,6 +1,5 @@
 """Public deployment checks must fail on unavailable or misleading responses."""
 
-import copy
 import sys
 from datetime import datetime
 from unittest.mock import Mock
