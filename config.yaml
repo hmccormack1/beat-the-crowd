@@ -57,3 +57,11 @@ features:
   max_crowd_p: 0.97
   text_max_features: 300
   text_ngram_range: [1, 2]
+
+# ---------------------------------------------------------------------------
+# 4. Split: grouped by event and ordered in time, so the test set is the future
+# ---------------------------------------------------------------------------
+split:
+  method: temporal          # temporal | random
+  train_frac: 0.70
+  val_frac: 0.15            # remainder is test
