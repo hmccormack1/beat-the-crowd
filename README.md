@@ -10,8 +10,8 @@ Paste any live Polymarket link into the app and it shows you the crowd's probabi
 
 | | |
 |---|---|
-| **Live app** | Deployment verification pending; see [deployment guide](docs/deployment.md) |
-| **API** | Deployment verification pending; see [deployment guide](docs/deployment.md) |
+| **Live app** | [Cloud Run app](https://beat-the-crowd-app-64wo2oghua-ue.a.run.app) — deployed; public access pending (HTTP 403) |
+| **API** | [API docs](https://beat-the-crowd-api-64wo2oghua-ue.a.run.app/docs) — deployed; public access pending (HTTP 403) |
 | **Data** | `gs://beat-the-crowd/v1/` (public, see [Data](#data)) |
 
 ---
@@ -213,6 +213,10 @@ Open the local URL printed by Streamlit (normally `http://localhost:8501`). For 
 
 The displayed edge is a difference between two probability estimates, not an expected investment return. The dashed line on the chart is today's model estimate, not a historical backtest of the model.
 
+![Live market comparison in the local browser](docs/images/app.jpg)
+
+Local browser capture using live Polymarket data through the HTTP API. Desktop and narrow-screen layouts, trending selection, prediction cards, charts, warnings, and model details were inspected. This screenshot is not evidence of public Cloud Run access; the deployed endpoints currently require the permission fix in the [deployment guide](docs/deployment.md).
+
 ### Docker
 
 The root image supports the complete data/training/serving pipeline. The default command serves the API, and any other pipeline command can be passed instead:
@@ -237,7 +241,7 @@ pytest -q
 
 The automated suite uses synthetic data and mocked upstream responses, so it needs no network access. It checks that features **never see prices after the snapshot time**, **no event appears in more than one split**, the frontend renders predictions and handles failures, and smoke checks reject invalid deployment evidence. CI runs these tests, builds both images, runs the backend tests inside Docker, and makes a real HTTP prediction with the published model. It runs on feature branches, pull requests, and `main`.
 
-On November 23, 2026, all **83 tests passed** locally. A complete XGBoost run from the public cloud data reproduced every reported test metric exactly, and its MLflow run completed with the effective config, model, and report artifacts. The unmocked frontend also scored five live markets through the local API. See [local HTTP verification](docs/local-verification.json). These local checks do not establish public deployment or browser visual quality; those require the separate deployment checks below.
+On November 23, 2026, all **90 tests passed** locally. A complete XGBoost run from the public cloud data reproduced every reported test metric exactly, and its MLflow run completed with the effective config, model, and report artifacts. The unmocked frontend also scored five live markets through the local API, and the local browser inspection is shown above. See [local HTTP verification](docs/local-verification.json). Public deployment still requires the unauthenticated checks below.
 
 ### Deploy to the cloud
 
@@ -248,10 +252,10 @@ Use the [deployment guide](docs/deployment.md) for the reproducible Cloud Run AP
 | Service | Role |
 |---|---|
 | Google Cloud Storage | Public cleaned data and trained model artifacts in `gs://beat-the-crowd/v1/` |
-| Cloud Run | Containerized FastAPI endpoint, with minimum instances 0 and maximum instances 2 |
-| Cloud Build | Builds the repository's Dockerfile for deployment |
+| Cloud Run | FastAPI and Streamlit services, each with minimum instances 0 and maximum instances 2 |
+| Cloud Build / Cloud Shell Docker | Remote-build workflow or local image build in Cloud Shell; the current deployment used Cloud Shell Docker |
 | Artifact Registry | Stores the container image used by Cloud Run |
-| Streamlit Community Cloud or Cloud Run | Hosts the Streamlit frontend; the live-links table identifies the verified deployment |
+| Streamlit Community Cloud | Documented alternative frontend host; current frontend is on Cloud Run |
 | GitHub Actions | Runs automated tests and both container builds on feature branches, pull requests, and `main` |
 | MLflow (local SQLite) | Tracks training parameters, metrics, model artifacts, and plots; it is not a hosted cloud service |
 

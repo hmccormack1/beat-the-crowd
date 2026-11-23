@@ -4,7 +4,22 @@ Deploy the model API before the frontend. Both deployments use the same source r
 
 ## Deployment status
 
-Public deployment verification is pending. Replace this status and the README live-links table only after the deployed URLs pass the checks below. Preserve the resulting `docs/deployment-verification.json` as evidence of the URL, time, and HTTP checks performed; it does not guarantee future uptime.
+Both services were deployed using Cloud Shell Docker, but unauthenticated HTTP checks return **403 Forbidden**. Public deployment verification is therefore blocked on service invocation permissions. The [latest access check](deployment-status.json) records this failure; it is not successful smoke-test evidence.
+
+- Frontend: https://beat-the-crowd-app-64wo2oghua-ue.a.run.app
+- API: https://beat-the-crowd-api-64wo2oghua-ue.a.run.app
+
+The project owner or a Cloud Run administrator can enable invocation on only these services:
+
+```bash
+for service in beat-the-crowd-api beat-the-crowd-app; do
+  gcloud run services add-iam-policy-binding "$service" \
+    --project=project-48739550-1716-4b50-877 \
+    --region=us-east1 --member=allUsers --role=roles/run.invoker
+done
+```
+
+This does not require a rebuild or a project-wide role grant to the deployer. It requires `run.services.setIamPolicy`; see [Google's public-access documentation](https://docs.cloud.google.com/run/docs/authenticating/public). After access is enabled, run the public smoke test below and preserve `docs/deployment-verification.json`. Update this status and the README only after those checks succeed.
 
 ## Prerequisites
 
