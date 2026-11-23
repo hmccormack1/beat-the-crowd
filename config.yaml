@@ -98,3 +98,9 @@ mlflow:
 output:
   model_dir: models
   reports_dir: reports
+
+serving:
+  model_path: models/model.joblib
+  # Fallback if the model isn't baked into the image: public GCS URL
+  model_url: https://storage.googleapis.com/beat-the-crowd/v1/model/model.joblib
+  edge_threshold: 0.05      # |model - crowd| above this gets flagged in the response
