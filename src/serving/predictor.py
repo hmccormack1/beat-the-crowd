@@ -7,6 +7,7 @@ import logging
 import time
 from datetime import datetime, timezone
 from pathlib import Path
+from urllib.parse import urljoin
 
 import joblib
 import numpy as np
@@ -40,11 +41,14 @@ class Predictor:
         self.max_horizon = max(cfg["features"]["snapshot_horizons_days"])
         self.p_range = (cfg["features"]["min_crowd_p"], cfg["features"]["max_crowd_p"])
         path = resolve(cfg["serving"]["model_path"])
+        card_path = Path(path).with_name("model_card.json")
         if not path.exists():
             log.info("model not found locally, downloading from %s", cfg["serving"]["model_url"])
+            # Download metadata from the same published artifact directory. A
+            # locally trained model already writes its own card alongside it.
+            download_file(urljoin(cfg["serving"]["model_url"], "model_card.json"), card_path)
             download_file(cfg["serving"]["model_url"], path)
         self.model = joblib.load(path)
-        card_path = Path(path).with_name("model_card.json")
         self.card = json.loads(card_path.read_text()) if card_path.exists() else {}
 
     # ------------------------------------------------------------------
