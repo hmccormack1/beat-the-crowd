@@ -4,4 +4,6 @@ steps:
     args: ["build", "-f", "Dockerfile.frontend", "-t", "${_IMAGE}", "."]
 images:
   - "${_IMAGE}"
+options:
+  logging: CLOUD_LOGGING_ONLY
 timeout: 1200s

@@ -68,6 +68,20 @@ APP_URL=$(gcloud run services describe beat-the-crowd-app \
   --format='value(status.url)')
 ```
 
+## When the build service account cannot read the source
+
+If source deployment fails with `storage.objects.get` denied for the default Compute Engine service account, the build account lacks the required project access. An authorized project administrator can grant `roles/run.builder` to that account as described in Google's [source-deployment prerequisites](https://docs.cloud.google.com/run/docs/deploying-source-code). An Editor cannot necessarily update project IAM; do not grant broad roles or change organization policies as a workaround.
+
+Alternatively, build and push using the already-authenticated user in Cloud Shell, which includes Docker:
+
+```bash
+git pull --ff-only
+BUILD_MODE=local ARTIFACT_REPOSITORY=cloud-run-source-deploy \
+  bash scripts/deploy_cloud_run.sh all
+```
+
+This reuses the Artifact Registry repository created by the source-deployment attempt, builds both images locally for `linux/amd64`, configures Docker's credential helper for the regional registry, and pushes using the active user's existing permissions. It skips Cloud Build and does not grant project IAM roles. Cloud Run deployment, service-account impersonation, and public-access permissions still apply. If public invocation fails with `run.services.setIamPolicy` denied, an administrator must authorize public access or grant the deployer the appropriate Cloud Run role; see [Google's public-access requirements](https://docs.cloud.google.com/run/docs/authenticating/public).
+
 ## Alternative: Streamlit Community Cloud
 
 1. Push the frontend branch to GitHub, review its pull request, and merge when checks pass.
