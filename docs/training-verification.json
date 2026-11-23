@@ -1,5 +1,5 @@
 {
-  "scope": "Corrected local training and evaluation from the unchanged public v1 data; corrected public deployment not yet verified.",
+  "scope": "Corrected local comparison training/evaluation from unchanged public v1 data, with a separately identified Docker release verified through public HTTP, independent artifact checksums, and hosted browser inspection. Local comparison and release run IDs/hashes are intentionally distinct.",
   "status": "FINISHED",
   "correction": {
     "source_commit": "855945b",
@@ -17,7 +17,7 @@
   "selected_model": "xgboost",
   "selection_scope": "XGBoost had the lowest validation Brier among the two learned candidates. The crowd baseline had lower Brier than either candidate on validation and test.",
   "intended_artifact_prefix": "gs://beat-the-crowd/v2-corrected/model/",
-  "corrected_public_deployment_status": "pending",
+  "corrected_public_deployment_status": "public_http_artifact_and_browser_verified",
   "candidates": {
     "xgboost": {
       "status": "FINISHED",
@@ -312,6 +312,55 @@
       "test_brier_skill_ci_low": -0.0372,
       "test_brier_skill_ci_high": -0.0051,
       "test_trade_roi": -0.3797
+    }
+  },
+  "deployed_release": {
+    "source_commit": "7470d972efa47bfecbb7bf45dd0ebb6fefcca7d4",
+    "trained_at": "2026-11-23T23:07:08+00:00",
+    "mlflow_run_id": "06ce2592fc0345669447c8a67246f443",
+    "config_hash": "06593fd4bb",
+    "model_type": "xgboost",
+    "n_markets": 7385,
+    "n_snapshots": 23135,
+    "test_period": [
+      "2026-10-04",
+      "2026-11-14"
+    ],
+    "metrics": {
+      "test_model_brier": 0.1093,
+      "test_model_log_loss": 0.3565,
+      "test_model_auc": 0.9301,
+      "test_model_ece": 0.0433,
+      "test_model_accuracy": 0.8503,
+      "test_crowd_brier": 0.1072,
+      "test_crowd_log_loss": 0.3406,
+      "test_crowd_auc": 0.9315,
+      "test_crowd_ece": 0.0323,
+      "test_crowd_accuracy": 0.8484,
+      "test_brier_skill_vs_crowd": -0.0197,
+      "test_brier_skill_ci_low": -0.0372,
+      "test_brier_skill_ci_high": -0.0051,
+      "test_trade_n_bets": 617,
+      "test_trade_bet_rate": 0.1707,
+      "test_trade_roi": -0.3797,
+      "test_n_rows": 3614,
+      "test_base_rate": 0.5028
+    },
+    "public_http_verified_at": "2026-11-23T23:11:11+00:00",
+    "public_http_report": "deployment-verification.json",
+    "matches_local_comparison_at_card_precision": true,
+    "release_manifest": "release-manifest.json",
+    "independent_artifact_verification": "passed",
+    "release_verification_report": "release-verification.json",
+    "hosted_browser_verification": "passed",
+    "independent_artifact_verified_at": "2026-11-23T23:12:57+00:00",
+    "hosted_browser_verified_at": "2026-11-23T23:14:03+00:00",
+    "hosted_browser_report": "browser-verification.json",
+    "release_manifest_sha256": "291dcd632ec9648fcb82eb2680629ce119555d3b492b151fecaf6552cb37d90d",
+    "published_artifact_hashes": {
+      "effective_config.json": "86122dfa0712460481608aeb38bb3537bb3b19662148525d787a054265ba40a8",
+      "model.joblib": "72598a80307da146732b41d65a404bb03beed675dd841e4cde5794d2dbbb1005",
+      "model_card.json": "ea050aa64e57b0641089bd5f12f68f597cc501b2655ec2c427c4c792a2bb659a"
     }
   }
 }

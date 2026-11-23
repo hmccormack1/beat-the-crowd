@@ -1,166 +1,194 @@
-SUPERSEDED — INVALID V1 MODEL
-The v1 model used an invalid training timestamp conversion that allowed future prices into historical snapshots. These earlier HTTP/UI observations do not validate the corrected replacement model.
+Browser tab: 5, Title: "Beat the Crowd | A second opinion on the odds", URL: "https://beat-the-crowd-app-64wo2oghua-ue.a.run.app/".
+0 AXWebArea Beat the Crowd | A second opinion on the odds, URL: beat-the-crowd-app-64wo2oghua-ue.a.run.app/
+	1 container
+		2 container
+			3 link Description: Skip to main content, Value: beat-the-crowd-app-64wo2oghua-ue.a.run.app/#stMain
+			5 pop up button (collapsed) Description: Main menu, Secondary Actions: Expand
+			4 container stMain
+				6 text PREDICTION MARKETS, WITH PERSPECTIVE
+				7 heading Beat the Crowd, Value: 1, ID: beat-the-crowd
+					8 text Beat the Crowd
+					9 link Description: Link to heading, Value: beat-the-crowd-app-64wo2oghua-ue.a.run.app/#beat-the-crowd
+				10 text Paste a Polymarket link. See what the crowd thinks, and what a model built from about 12,000 resolved markets thinks.
+				11 container
+					12 button Help for Polymarket event or market
+					13 text field (settable) Description: Polymarket event or market, Value: https://polymarket.com/event/fed-decision-in-december-20260729232808632, ID: :ra:
+				14 button Score it
+					15 text Score it
+				16 text An independent probability estimate. No trades, no account, no guarantees.
+				17 text OR START WITH A TRENDING EVENT
+				18 button Fed Decision in December?
+					19 text Fed Decision in December?
+				20 button New NVIDIA CEO named by December 31, 2026?
+					21 text New NVIDIA CEO named by December 31, 2026?
+				22 button What price will Bitcoin hit in November?
+					23 text What price will Bitcoin hit in November?
+				24 button Democratic Presidential Nominee 2028
+					25 text Democratic Presidential Nominee 2028
+				26 button Next French Presidential Election
+					27 text Next French Presidential Election
+				28 button What price will Bitcoin hit in 2026?
+					29 text What price will Bitcoin hit in 2026?
+				30 text YOUR SECOND OPINION
+				31 heading Fed Decision in December?, Value: 2, ID: fed-decision-in-december
+					32 text Fed Decision in December?
+					33 link Description: Link to heading, Value: beat-the-crowd-app-64wo2oghua-ue.a.run.app/#fed-decision-in-december
+				34 container
+					35 text Scored at 2026-11-23 23:12 :09  UTC · Prices change. Submit again to refresh.
+				36 text Showing 5 scored markets. Events are limited to the 12 highest-volume eligible markets.
+				37 heading Will there be no change in Fed interest rates after the December 2026 meeting?, Value: 3, ID: will-there-be-no-change-in-fed-interest-rates-after-the-december-2026-meeting
+					38 text Will there be no change in Fed interest rates after the December 2026 meeting?
+					39 link Description: Link to heading, Value: beat-the-crowd-app-64wo2oghua-ue.a.run.app/#will-there-be-no-change-in-fed-interest-rates-after-the-december-2026-meeting
+				40 container
+					41 text CROWD · YES probability
+					42 text 3.1%
+				43 container
+					44 text MODEL · YES probability
+					45 button Help for MODEL · YES probability
+					46 text 6.0% +2.8 pp vs. crowd
+				47 text agrees with the crowd
+				48 container
+					49 button Show data
+					50 button Download as PNG
+					51 button Fullscreen
+					52 container Vega visualization
+						53 image
+							54 container X-axis for a utc scale with values from August 22 to November 23 Y-axis titled 'YES probability' for a linear scale with values from 0% to 100% date: Aug 22; YES probability: 63%; Date (UTC): Aug 22, 2026; Crowd: 62.5%probability: 0.0599; Model now: 6.0%
+								55 axis X-axis for a utc scale with values from August 22 to November 23
+								56 axis Y-axis titled 'YES probability' for a linear scale with values from 0% to 100%
+								57 container date: Aug 22; YES probability: 63%; Date (UTC): Aug 22, 2026; Crowd: 62.5%
+									58 line mark date: Aug 22; YES probability: 63%; Date (UTC): Aug 22, 2026; Crowd: 62.5%
+								59 container probability: 0.0599; Model now: 6.0%
+									60 rule mark probability: 0.0599; Model now: 6.0%
+				61 text Blue: daily crowd price · Dashed amber: model estimate now (not a historical model forecast).
+				62 text 16 days to end · $13,879,787 total volume · Politics · Ends Dec 09, 2026
+				63 heading Will the Fed increase interest rates by 25 bps after the December 2026 meeting?, Value: 3, ID: will-the-fed-increase-interest-rates-by-25-bps-after-the-december-2026-meeting
+					64 text Will the Fed increase interest rates by 25 bps after the December 2026 meeting?
+					65 link Description: Link to heading, Value: beat-the-crowd-app-64wo2oghua-ue.a.run.app/#will-the-fed-increase-interest-rates-by-25-bps-after-the-december-2026-meeting
+				66 container
+					67 text CROWD · YES probability
+					68 text 93.5%
+				69 container
+					70 text MODEL · YES probability
+					71 button Help for MODEL · YES probability
+					72 text 90.7% -2.8 pp vs. crowd
+				73 text agrees with the crowd
+				74 container
+					75 button Show data
+					76 button Download as PNG
+					77 button Fullscreen
+					78 container Vega visualization
+						79 image
+							80 container X-axis for a utc scale with values from August 21 to November 23 Y-axis titled 'YES probability' for a linear scale with values from 0% to 100% date: Aug 21; YES probability: 26%; Date (UTC): Aug 21, 2026; Crowd: 25.5%probability: 0.9067; Model now: 90.7%
+								81 axis X-axis for a utc scale with values from August 21 to November 23
+								82 axis Y-axis titled 'YES probability' for a linear scale with values from 0% to 100%
+								83 container date: Aug 21; YES probability: 26%; Date (UTC): Aug 21, 2026; Crowd: 25.5%
+									84 line mark date: Aug 21; YES probability: 26%; Date (UTC): Aug 21, 2026; Crowd: 25.5%
+								85 container probability: 0.9067; Model now: 90.7%
+									86 rule mark probability: 0.9067; Model now: 90.7%
+				87 text Blue: daily crowd price · Dashed amber: model estimate now (not a historical model forecast).
+				88 text 16 days to end · $12,141,764 total volume · Politics · Ends Dec 09, 2026
+				89 heading Will the Fed decrease interest rates by 25 bps after the December 2026 meeting?, Value: 3, ID: will-the-fed-decrease-interest-rates-by-25-bps-after-the-december-2026-meeting
+					90 text Will the Fed decrease interest rates by 25 bps after the December 2026 meeting?
+					91 link Description: Link to heading, Value: beat-the-crowd-app-64wo2oghua-ue.a.run.app/#will-the-fed-decrease-interest-rates-by-25-bps-after-the-december-2026-meeting
+				92 container
+					93 text CROWD · YES probability
+					94 text 0.2%
+				95 container
+					96 text MODEL · YES probability
+					97 button Help for MODEL · YES probability
+					98 text 5.6% +5.3 pp vs. crowd
+				99 text YES looks underpriced
+				100 text The crowd is already near-certain (outside 3%-97%); the model was only trained on contested markets.
+				101 container
+					102 button Show data
+					103 button Download as PNG
+					104 button Fullscreen
+					105 container Vega visualization
+						106 image
+							107 container X-axis for a utc scale with values from August 17 to November 23 Y-axis titled 'YES probability' for a linear scale with values from 0% to 100% date: Aug 17; YES probability: 7%; Date (UTC): Aug 17, 2026; Crowd: 7.1%probability: 0.0559; Model now: 5.6%
+								108 axis X-axis for a utc scale with values from August 17 to November 23
+								109 axis Y-axis titled 'YES probability' for a linear scale with values from 0% to 100%
+								110 container date: Aug 17; YES probability: 7%; Date (UTC): Aug 17, 2026; Crowd: 7.1%
+									111 line mark date: Aug 17; YES probability: 7%; Date (UTC): Aug 17, 2026; Crowd: 7.1%
+								112 container probability: 0.0559; Model now: 5.6%
+									113 rule mark probability: 0.0559; Model now: 5.6%
+				114 text Blue: daily crowd price · Dashed amber: model estimate now (not a historical model forecast).
+				115 text 16 days to end · $10,056,546 total volume · Politics · Ends Dec 09, 2026
+				116 heading Will the Fed increase interest rates by 50+ bps after the December 2026 meeting?, Value: 3, ID: will-the-fed-increase-interest-rates-by-50-bps-after-the-december-2026-meeting
+					117 text Will the Fed increase interest rates by 50+ bps after the December 2026 meeting?
+					118 link Description: Link to heading, Value: beat-the-crowd-app-64wo2oghua-ue.a.run.app/#will-the-fed-increase-interest-rates-by-50-bps-after-the-december-2026-meeting
+				119 container
+					120 text CROWD · YES probability
+					121 text 3.6%
+				122 container
+					123 text MODEL · YES probability
+					124 button Help for MODEL · YES probability
+					125 text 5.6% +1.9 pp vs. crowd
+				126 text agrees with the crowd
+				127 container
+					128 button Show data
+					129 button Download as PNG
+					130 button Fullscreen
+					131 container Vega visualization
+						132 image
+							133 container X-axis for a utc scale with values from August 17 to November 23 Y-axis titled 'YES probability' for a linear scale with values from 0% to 100% date: Aug 17; YES probability: 1%; Date (UTC): Aug 17, 2026; Crowd: 0.9%probability: 0.0559; Model now: 5.6%
+								134 axis X-axis for a utc scale with values from August 17 to November 23
+								135 axis Y-axis titled 'YES probability' for a linear scale with values from 0% to 100%
+								136 container date: Aug 17; YES probability: 1%; Date (UTC): Aug 17, 2026; Crowd: 0.9%
+									137 line mark date: Aug 17; YES probability: 1%; Date (UTC): Aug 17, 2026; Crowd: 0.9%
+								138 container probability: 0.0559; Model now: 5.6%
+									139 rule mark probability: 0.0559; Model now: 5.6%
+				140 text Blue: daily crowd price · Dashed amber: model estimate now (not a historical model forecast).
+				141 text 16 days to end · $9,380,180 total volume · Politics · Ends Dec 09, 2026
+				142 heading Will the Fed decrease interest rates by 50+ bps after the December 2026 meeting?, Value: 3, ID: will-the-fed-decrease-interest-rates-by-50-bps-after-the-december-2026-meeting
+					143 text Will the Fed decrease interest rates by 50+ bps after the December 2026 meeting?
+					144 link Description: Link to heading, Value: beat-the-crowd-app-64wo2oghua-ue.a.run.app/#will-the-fed-decrease-interest-rates-by-50-bps-after-the-december-2026-meeting
+				145 container
+					146 text CROWD · YES probability
+					147 text 0.1%
+				148 container
+					149 text MODEL · YES probability
+					150 button Help for MODEL · YES probability
+					151 text 5.6% +5.4 pp vs. crowd
+				152 text YES looks underpriced
+				153 text The crowd is already near-certain (outside 3%-97%); the model was only trained on contested markets.
+				154 container
+					155 button Show data
+					156 button Download as PNG
+					157 button Fullscreen
+					158 container Vega visualization
+						159 image
+							160 container X-axis for a utc scale with values from August 19 to November 23 Y-axis titled 'YES probability' for a linear scale with values from 0% to 100% date: Aug 19; YES probability: 1%; Date (UTC): Aug 19, 2026; Crowd: 0.7%probability: 0.0559; Model now: 5.6%
+								161 axis X-axis for a utc scale with values from August 19 to November 23
+								162 axis Y-axis titled 'YES probability' for a linear scale with values from 0% to 100%
+								163 container date: Aug 19; YES probability: 1%; Date (UTC): Aug 19, 2026; Crowd: 0.7%
+									164 line mark date: Aug 19; YES probability: 1%; Date (UTC): Aug 19, 2026; Crowd: 0.7%
+								165 container probability: 0.0559; Model now: 5.6%
+									166 rule mark probability: 0.0559; Model now: 5.6%
+				167 text Blue: daily crowd price · Dashed amber: model estimate now (not a historical model forecast).
+				168 text 16 days to end · $8,444,030 total volume · Politics · Ends Dec 09, 2026
+				174 container
+					175 button (expanded) How good is this model?, Secondary Actions: Collapse
+						176 text How good is this model?
+					177 text Compare the selected model with the crowd on held-out events. Model selection uses validation performance; the test metrics below are reported separately. A lower Brier score means better probability estimates.
+					178 text Model Brier · test
+					179 text 0.1093
+					180 text Crowd Brier · test
+					181 text 0.1072
+					182 text Relative Brier improvement
+					183 text -2.0%
+					184 container
+						185 text 95% confidence interval: -3.7% to -0.5%.  This interval resamples entire events to account for related markets.
+					186 text The interval is below zero: the model performed worse than the crowd on this test set. A disagreement is not evidence of an advantage.
+					187 container
+						188 text Paper-trading return on the test set:  -38.0% , before fees and slippage. Better probabilities do not guarantee profit.
+					189 text Test period: 2026-10-04 to 2026-11-14 · Trained Nov 23, 2026 · Model: xgboost
+					190 text After filtering: 7,385 markets and 23,135 snapshots across all splits. The source dataset contains about 12,000 resolved markets.
+					191 text Training covers contested Yes/No markets with at least $25,000 in volume, using snapshots 1–90 days before their deadline. Markets outside that range can be unreliable; check every warning above.
+					192 link Description: Explore the methodology, Value: github.com/hmccormack1/beat-the-crowd#how-it-works
+				171 container
+					172 text Research, not a betting strategy.
+					173 text Not financial or betting advice. Model estimates can be wrong; review the held-out results and uncertainty before interpreting a disagreement. This app reads public data and places no trades. Market access varies by location.
 
-URL: https://beat-the-crowd-app-64wo2oghua-ue.a.run.app/
-
-- link "Skip to main content":
-  - /url: "#stMain"
-- banner:
-  - button "Main menu":
-- main:
-  - paragraph: PREDICTION MARKETS, WITH PERSPECTIVE
-  - heading "Beat the Crowd" [level=1]:
-    - text: Beat the Crowd
-    - link "Link to heading":
-      - /url: "#beat-the-crowd"
-  - paragraph: Paste a Polymarket link. See what the crowd thinks, and what a model built from about 12,000 resolved markets thinks.
-  - paragraph: Polymarket event or market
-  - button "Help for Polymarket event or market":
-  - textbox "Polymarket event or market":
-    - /placeholder: https://polymarket.com/event/...
-    - text: https://polymarket.com/event/fed-decision-in-december-20260729232808632
-  - button "Score it":
-    - paragraph: Score it
-  - paragraph: An independent probability estimate. No trades, no account, no guarantees.
-  - paragraph: Or start with a trending event
-  - button "Fed Decision in December?":
-    - paragraph: Fed Decision in December?
-  - button "New NVIDIA CEO named by December 31, 2026?":
-    - paragraph: New NVIDIA CEO named by December 31, 2026?
-  - button "What price will Bitcoin hit in November?":
-    - paragraph: What price will Bitcoin hit in November?
-  - button "Next French Presidential Election":
-    - paragraph: Next French Presidential Election
-  - button "Israel x Iran ceasefire continues through...?":
-    - paragraph: Israel x Iran ceasefire continues through...?
-  - button "What price will Bitcoin hit in 2026?":
-    - paragraph: What price will Bitcoin hit in 2026?
-  - separator
-  - paragraph: Your second opinion
-  - heading "Fed Decision in December?" [level=2]:
-    - text: Fed Decision in December?
-    - link "Link to heading":
-      - /url: "#fed-decision-in-december"
-  - paragraph: Scored at 2026-11-23 22:07:48 UTC · Prices change. Submit again to refresh.
-  - paragraph: Showing 5 scored markets. Events are limited to the 12 highest-volume eligible markets.
-  - heading "Will there be no change in Fed interest rates after the December 2026 meeting?" [level=3]:
-    - text: Will there be no change in Fed interest rates after the December 2026 meeting?
-    - link "Link to heading":
-      - /url: "#will-there-be-no-change-in-fed-interest-rates-after-the-december-2026-meeting"
-  - paragraph: CROWD · YES probability
-  - paragraph: 3.2%
-  - paragraph: MODEL · YES probability
-  - button "Help for MODEL · YES probability":
-  - paragraph: 3.4%
-  - paragraph: +0.2 pp vs. crowd
-  - paragraph:
-    - generic: agrees with the crowd
-  - button "Show data":
-  - button "Download as PNG":
-  - button "Fullscreen":
-  - generic "Vega visualization":
-  - paragraph: "Blue: daily crowd price · Dashed amber: model estimate now (not a historical model forecast)."
-  - paragraph: 16 days to end · $13,861,198 total volume · Politics · Ends Dec 09, 2026
-  - heading "Will the Fed increase interest rates by 25 bps after the December 2026 meeting?" [level=3]:
-    - text: Will the Fed increase interest rates by 25 bps after the December 2026 meeting?
-    - link "Link to heading":
-      - /url: "#will-the-fed-increase-interest-rates-by-25-bps-after-the-december-2026-meeting"
-  - paragraph: CROWD · YES probability
-  - paragraph: 93.5%
-  - paragraph: MODEL · YES probability
-  - button "Help for MODEL · YES probability":
-  - paragraph: 95.8%
-  - paragraph: +2.3 pp vs. crowd
-  - paragraph:
-    - generic: agrees with the crowd
-  - button "Show data":
-  - button "Download as PNG":
-  - button "Fullscreen":
-  - generic "Vega visualization":
-  - paragraph: "Blue: daily crowd price · Dashed amber: model estimate now (not a historical model forecast)."
-  - paragraph: 16 days to end · $12,140,958 total volume · Politics · Ends Dec 09, 2026
-  - heading "Will the Fed decrease interest rates by 25 bps after the December 2026 meeting?" [level=3]:
-    - text: Will the Fed decrease interest rates by 25 bps after the December 2026 meeting?
-    - link "Link to heading":
-      - /url: "#will-the-fed-decrease-interest-rates-by-25-bps-after-the-december-2026-meeting"
-  - paragraph: CROWD · YES probability
-  - paragraph: 0.2%
-  - paragraph: MODEL · YES probability
-  - button "Help for MODEL · YES probability":
-  - paragraph: 6.8%
-  - paragraph: +6.5 pp vs. crowd
-  - paragraph:
-    - generic: YES looks underpriced
-  - alert:
-    - paragraph: The crowd is already near-certain (outside 3%-97%); the model was only trained on contested markets.
-  - button "Show data":
-  - button "Download as PNG":
-  - button "Fullscreen":
-  - generic "Vega visualization":
-  - paragraph: "Blue: daily crowd price · Dashed amber: model estimate now (not a historical model forecast)."
-  - paragraph: 16 days to end · $10,046,165 total volume · Politics · Ends Dec 09, 2026
-  - heading "Will the Fed increase interest rates by 50+ bps after the December 2026 meeting?" [level=3]:
-    - text: Will the Fed increase interest rates by 50+ bps after the December 2026 meeting?
-    - link "Link to heading":
-      - /url: "#will-the-fed-increase-interest-rates-by-50-bps-after-the-december-2026-meeting"
-  - paragraph: CROWD · YES probability
-  - paragraph: 3.4%
-  - paragraph: MODEL · YES probability
-  - button "Help for MODEL · YES probability":
-  - paragraph: 6.8%
-  - paragraph: +3.4 pp vs. crowd
-  - paragraph:
-    - generic: agrees with the crowd
-  - button "Show data":
-  - button "Download as PNG":
-  - button "Fullscreen":
-  - generic "Vega visualization":
-  - paragraph: "Blue: daily crowd price · Dashed amber: model estimate now (not a historical model forecast)."
-  - paragraph: 16 days to end · $9,367,672 total volume · Politics · Ends Dec 09, 2026
-  - heading "Will the Fed decrease interest rates by 50+ bps after the December 2026 meeting?" [level=3]:
-    - text: Will the Fed decrease interest rates by 50+ bps after the December 2026 meeting?
-    - link "Link to heading":
-      - /url: "#will-the-fed-decrease-interest-rates-by-50-bps-after-the-december-2026-meeting"
-  - paragraph: CROWD · YES probability
-  - paragraph: 0.1%
-  - paragraph: MODEL · YES probability
-  - button "Help for MODEL · YES probability":
-  - paragraph: 6.8%
-  - paragraph: +6.6 pp vs. crowd
-  - paragraph:
-    - generic: YES looks underpriced
-  - alert:
-    - paragraph: The crowd is already near-certain (outside 3%-97%); the model was only trained on contested markets.
-  - button "Show data":
-  - button "Download as PNG":
-  - button "Fullscreen":
-  - generic "Vega visualization":
-  - paragraph: "Blue: daily crowd price · Dashed amber: model estimate now (not a historical model forecast)."
-  - paragraph: 16 days to end · $8,431,412 total volume · Politics · Ends Dec 09, 2026
-  - generic "How good is this model?" [active]:
-    - generic: keyboard_arrow_down
-    - paragraph: How good is this model?
-  - paragraph: The crowd is hard to beat. We chose XGBoost on validation performance, then evaluated it on later, unseen events. A lower Brier score means better probability estimates.
-  - paragraph: Model Brier · test
-  - paragraph: "0.0469"
-  - paragraph: Crowd Brier · test
-  - paragraph: "0.0495"
-  - paragraph: Relative Brier improvement
-  - paragraph: +5.2%
-  - paragraph:
-    - strong: "95% confidence interval: -3.8% to +16.4%."
-    - text: This interval resamples entire events to account for related markets.
-  - alert:
-    - paragraph: The interval includes zero. This test does not establish that the model consistently beats the crowd.
-  - paragraph:
-    - text: "Paper-trading return on the test set:"
-    - strong: "-2.7%"
-    - text: ", before fees and slippage. Better probabilities do not guarantee profit."
-  - paragraph: "Test period: 2026-10-01 to 2026-11-10 · Trained Nov 23, 2026 · Model: xgboost"
-  - paragraph: "After filtering: 2,562 markets and 9,903 snapshots across all splits. The source dataset contains about 12,000 resolved markets."
-  - paragraph: Training covers contested Yes/No markets with at least $25,000 in volume, using snapshots 1–90 days before their deadline. Markets outside that range can be unreliable; check every warning above.
-  - link "Explore the methodology":
-    - /url: https://github.com/hmccormack1/beat-the-crowd#how-it-works
-    - paragraph: Explore the methodology
-  - strong: Research, not a betting strategy.
-  - text: Not financial or betting advice. On recent data the model’s edge over the crowd is small and statistically uncertain. This app reads public data and places no trades. Market access varies by location.
+The focused UI element is 175 button (expanded) How good is this model?, Secondary Actions: Collapse

@@ -10,8 +10,8 @@ Paste any live Polymarket link into the app and it shows you the crowd's probabi
 
 | | |
 |---|---|
-| **Live app** | [Cloud Run app](https://beat-the-crowd-app-64wo2oghua-ue.a.run.app) — corrected model replacement pending |
-| **API** | [API docs](https://beat-the-crowd-api-64wo2oghua-ue.a.run.app/docs) — corrected model replacement pending |
+| **Live app** | [Cloud Run app](https://beat-the-crowd-app-64wo2oghua-ue.a.run.app) — public; corrected release verified |
+| **API** | [API docs](https://beat-the-crowd-api-64wo2oghua-ue.a.run.app/docs) — corrected model live |
 | **Data** | `gs://beat-the-crowd/v1/` (public, see [Data](#data)) |
 
 ---
@@ -22,7 +22,7 @@ Paste any live Polymarket link into the app and it shows you the crowd's probabi
 
 During the submission audit, we found a timestamp-unit bug in training. The Parquet data stored timestamps in microseconds, but feature construction divided their integer values by a nanosecond conversion factor. The resulting times fell near 1970, so future prices could enter earlier snapshots. The previous model and its reported metrics are invalid. Reproducing those numbers only reproduced the bug; the earlier tests did not cover this Parquet representation.
 
-Commit `855945b` makes the conversion explicit and adds regression coverage for the affected path. We retrained **both** XGBoost and logistic regression on the same corrected split, then selected the learned model by **validation Brier score**, without using test scores for that selection. The [corrected training record](docs/training-verification.json) contains both runs, full-precision metrics, source revision, data hashes, and model hashes. The existing public services still need the corrected artifacts and a new deployment; earlier public HTTP and browser checks do not validate the corrected model.
+Commit `855945b` makes the conversion explicit and adds regression coverage for the affected path. We retrained **both** XGBoost and logistic regression on the same corrected split, then selected the learned model by **validation Brier score**, without using test scores for that selection. The [corrected training record](docs/training-verification.json) contains both runs, full-precision metrics, source revision, data hashes, and model hashes. The corrected release is now deployed. [Fresh public HTTP checks](docs/deployment-verification.json) at 23:11:11 UTC on November 23, 2026 verified its model card, raw prediction, five live-market predictions, and frontend health. The [independent release audit](docs/release-verification.json) confirms artifact/data checksums and matching published/served model cards. [Hosted browser inspection](docs/browser-verification.json) also passed. Earlier evidence from the invalid model remains superseded.
 
 | | Validation | Test (Oct 4–Nov 14, 2026) |
 |---|---|---|
@@ -82,9 +82,9 @@ The cleaned tables live in a public Google Cloud Storage bucket:
 |---|---|
 | [markets.parquet](https://storage.googleapis.com/beat-the-crowd/v1/markets.parquet) | one row per market: question, event, tags, start/end dates, volume, outcome |
 | [prices.parquet](https://storage.googleapis.com/beat-the-crowd/v1/prices.parquet) | one row per market per day: YES price |
-| [corrected model.joblib](https://storage.googleapis.com/beat-the-crowd/v2-corrected/model/model.joblib) | corrected model artifact destination; publication and deployment verification pending |
+| [corrected model.joblib](https://storage.googleapis.com/beat-the-crowd/v2-corrected/model/model.joblib) | published corrected XGBoost pipeline |
 
-The companion [corrected model card](https://storage.googleapis.com/beat-the-crowd/v2-corrected/model/model_card.json) is the intended publication destination for the matching training provenance and test metrics. The raw data remains under `v1`; the former `v1/model/` artifacts must not be used for corrected inference or evaluation. Only load serialized models from a source you trust; this deployment uses our project bucket.
+The companion [corrected model card](https://storage.googleapis.com/beat-the-crowd/v2-corrected/model/model_card.json) records the matching release provenance and corrected test metrics. The raw data remains under `v1`; the former `v1/model/` artifacts must not be used for corrected inference or evaluation. Only load serialized models from a source you trust; this deployment uses our project bucket.
 
 Because the bucket is public, `python -m src.data.storage download` (and the training script) can fetch the data without a Google Cloud account.
 
@@ -122,7 +122,7 @@ We score everything twice, once for the model and once for the crowd (the raw ma
 
 Every training run is logged to **MLflow**: ingestion, feature, split, and model settings as params, the git commit and a hash of the config as tags, train/val/test metrics for model and crowd, plots (calibration, long-shot bias, error by horizon, feature importance), and the fitted model.
 
-The corrected **local comparison runs** are `a7c90470a1404d08a710ab7ff9dc1f9d` (XGBoost) and `4b816fdd48dd4b839d032acd246b93fd` (logistic regression), both `FINISHED`. Their metrics and artifact inventories are in the [training record](docs/training-verification.json). Publication retrains the selected model in Docker from a clean committed release revision, so the cloud release has its own source commit, run ID, timestamp, and artifact hashes. Its manifest and served model card must agree; the local comparison identifiers are not prescribed cloud-release identifiers.
+The corrected **local comparison runs** are `a7c90470a1404d08a710ab7ff9dc1f9d` (XGBoost) and `4b816fdd48dd4b839d032acd246b93fd` (logistic regression), both `FINISHED`. Their metrics and artifact inventories are in the [training record](docs/training-verification.json). Publication retrains the selected model in Docker from a clean committed release revision, so the cloud release has its own source commit, run ID, timestamp, and artifact hashes. Its manifest and served model card must agree; the local comparison identifiers are not prescribed cloud-release identifiers. The deployed Docker release was trained at **23:07:08 UTC on November 23, 2026**, from commit `7470d972efa47bfecbb7bf45dd0ebb6fefcca7d4`, with MLflow run `06ce2592fc0345669447c8a67246f443` and config hash `06593fd4bb`. Its corrected counts and test metrics match the local comparison at the reported precision.
 
 ![MLflow metrics for the corrected local XGBoost comparison run](docs/images/mlflow-corrected.jpg)
 
@@ -216,7 +216,11 @@ Open the local URL printed by Streamlit (normally `http://localhost:8501`). For 
 
 The displayed edge is a difference between two probability estimates, not an expected investment return. The dashed line on the chart is today's model estimate, not a historical backtest of the model.
 
-Corrected-model hosted screenshots and browser verification are pending the replacement deployment. Earlier screenshots show predictions from the invalid model and should not be used to assess corrected behavior.
+The corrected hosted app passed [browser inspection](docs/browser-verification.json): trending selection, five prediction cards and charts, model metrics and warnings, invalid-link handling, and a 390-pixel mobile layout. These captures show the corrected release.
+
+![Corrected hosted app comparing crowd and model probabilities](docs/images/app-live.jpg)
+
+[Model information](docs/images/app-live-model.jpg) · [Mobile view](docs/images/app-live-mobile.jpg)
 
 ### Docker
 
@@ -242,9 +246,9 @@ pytest -q
 
 The automated suite uses synthetic data and mocked upstream responses, so it needs no network access. It checks that features **never see prices after the snapshot time**, **no event appears in more than one split**, the frontend renders predictions and handles failures, and smoke checks reject invalid deployment evidence. CI runs these tests, builds both images, runs the backend tests inside Docker, trains a fresh corrected model inside the backend image, and mounts that model into an API container for a real HTTP prediction. This container check uses the newly trained model and does not depend on the corrected artifact already being published. It runs on feature branches, pull requests, and `main`.
 
-The earlier 90-test suite and [pre-correction CI](https://github.com/hmccormack1/beat-the-crowd/actions/runs/45278554700) passed but did not catch the microsecond/nanosecond mismatch. The expanded local suite now passes **113 tests in 18.18 seconds**, including timestamp regression and corrected-release helper tests. [Corrected CI at `238bcef`](https://github.com/hmccormack1/beat-the-crowd/actions/runs/45282540880) completed successfully at **22:48:48 UTC on November 23, 2026**. Both jobs passed, including fresh model training inside Docker and HTTP inference using that resulting model; [job and step evidence](docs/ci-verification.json) records the checked revision. Corrected public deployment remains pending.
+The earlier 90-test suite and [pre-correction CI](https://github.com/hmccormack1/beat-the-crowd/actions/runs/45278554700) passed but did not catch the microsecond/nanosecond mismatch. The expanded local suite now passes **113 tests in 18.18 seconds**, including timestamp regression and corrected-release helper tests. [Corrected CI at `7470d97`](https://github.com/hmccormack1/beat-the-crowd/actions/runs/45283570027) completed successfully at **22:55:25 UTC on November 23, 2026**. Both jobs passed, including fresh model training inside Docker and HTTP inference using that resulting model; [job and step evidence](docs/ci-verification.json) records the checked revision. The corrected public deployment also passed the separate HTTP checks below.
 
-Both corrected training runs completed from the unchanged public data; see [training evidence](docs/training-verification.json). [Corrected local HTTP checks](docs/local-verification.json) passed at 22:37 UTC on November 23, 2026, covering the model card, raw prediction, live-market prediction, and frontend health. Local browser inspection also confirmed five corrected prediction cards, charts, warnings, and model metrics. Corrected public-model replacement and hosted browser verification remain pending. Historical HTTP 200 responses and UI screenshots establish only that the previous deployment ran; they do not establish that its model was valid.
+Both corrected training runs completed from the unchanged public data; see [training evidence](docs/training-verification.json). [Corrected local HTTP checks](docs/local-verification.json) passed at 22:37 UTC on November 23, 2026, covering the model card, raw prediction, live-market prediction, and frontend health. Local browser inspection also confirmed five corrected prediction cards, charts, warnings, and model metrics. The [corrected public HTTP report](docs/deployment-verification.json) passed at **23:11:11 UTC**, identifying release `7470d97` and scoring five current Fed-event markets. The [independent release audit](docs/release-verification.json) passed at **23:12:57 UTC**, checking the published model/config/card and data hashes, source ancestry, and exact agreement of published and served cards. The [hosted browser record](docs/browser-verification.json) passed at **23:14:03 UTC** with corrected desktop/mobile screenshots. Historical HTTP 200 responses and UI screenshots from the invalid model remain superseded.
 
 ### Deploy to the cloud
 
@@ -312,7 +316,7 @@ See the [requirement-to-evidence checklist](docs/requirements-checklist.md) for 
 
 ## Collaboration and reproducibility
 
-Hadley's pipeline, API, and documentation were delivered through PRs #1-#4. Konur's second-half changes are in [PR #5](https://github.com/hmccormack1/beat-the-crowd/pull/5), submitted from his own account, on `feature/complete-deployment-frontend` with focused commits. The [CI history](https://github.com/hmccormack1/beat-the-crowd/actions) records the automated tests and both container checks. The timestamp correction follows on `feature/fix-snapshot-time-units`; corrected CI passed at `238bcef`, while its review/merge and replacement public deployment remain pending. Public service URLs above currently identify the deployment awaiting that replacement.
+Hadley's pipeline, API, and documentation were delivered through PRs #1-#4. Konur's second-half changes are in [PR #5](https://github.com/hmccormack1/beat-the-crowd/pull/5), submitted from his own account, on `feature/complete-deployment-frontend` with focused commits. The [CI history](https://github.com/hmccormack1/beat-the-crowd/actions) records the automated tests and both container checks. The timestamp correction follows on `feature/fix-snapshot-time-units`; corrected CI passed at `7470d97`, and release `7470d97` is publicly deployed. Corrected public HTTP, artifact integrity, and hosted browser checks are complete; correction PR review/merge remains pending.
 
 We keep data, fitted models, local MLflow databases, virtual environments, and secrets out of Git. Training downloads the versioned public data, records the code revision and configuration hash, and saves evaluation artifacts. Re-ingesting the live platform can produce a different dataset; use the hosted `v1` data for comparison with the reported experiment.
 

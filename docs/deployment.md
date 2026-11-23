@@ -4,12 +4,14 @@ Deploy the model API before the frontend. Both deployments use the same source r
 
 ## Deployment status
 
-**The corrected model replacement is pending.** Both existing service URLs were publicly reachable, but their previous predictions, model metrics, and screenshots came from the invalid timestamp pipeline. Earlier HTTP success and browser checks do not validate corrected inference. Do not submit those reports as evidence of the replacement model.
+**The corrected release is publicly deployed.** Fresh unauthenticated HTTP checks passed at **2026-11-23 23:11:11 UTC**: API health/model metadata, raw JSON prediction, a live Fed event returning five scored markets, and frontend HTML/health. The [public smoke report](deployment-verification.json) records the actual requests and results. The [independent release audit](release-verification.json) passed at **23:12:57 UTC**, and [hosted browser inspection](browser-verification.json) passed at **23:14:03 UTC**, including predictions, charts, warnings, model metrics, invalid-link handling, and mobile layout.
 
-- [Existing frontend](https://beat-the-crowd-app-64wo2oghua-ue.a.run.app)
-- [Existing API documentation](https://beat-the-crowd-api-64wo2oghua-ue.a.run.app/docs)
+- [Public frontend](https://beat-the-crowd-app-64wo2oghua-ue.a.run.app)
+- [Public API documentation](https://beat-the-crowd-api-64wo2oghua-ue.a.run.app/docs)
 
-Both corrected candidates finished training from the unchanged `v1` data. XGBoost was selected among the learned candidates by validation Brier; the crowd remained better. The [corrected training record](training-verification.json) contains the results and provenance. Publish the selected pair under `gs://beat-the-crowd/v2-corrected/model/`, deploy the corrected API and frontend, and collect new public HTTP and browser evidence before marking this deployment complete.
+The served model card identifies source commit `7470d972efa47bfecbb7bf45dd0ebb6fefcca7d4`, training time `2026-11-23T23:07:08+00:00`, MLflow run `06ce2592fc0345669447c8a67246f443`, and config hash `06593fd4bb`. This Docker release is distinct from the earlier corrected local comparison runs. It reports 7,385 markets, 23,135 snapshots, and test Brier 0.1093 against the crowd's 0.1072, matching the corrected evaluation.
+
+The model/card/effective-config files are published under `gs://beat-the-crowd/v2-corrected/model/`; raw data remains `v1`. The [release manifest](release-manifest.json) and [independent release verification](release-verification.json) record verified artifact/data checksums, correction ancestry, and exact agreement between published and served model cards. The integrity audit hashes the model bytes; it does not recompute evaluation metrics. Pre-correction reports are superseded and do not validate this release. Correction review/merge remains pending.
 
 ## Publish the corrected model
 
@@ -143,9 +145,9 @@ The example event may eventually close. If it does, choose an open event from `/
 
 ## Browser verification and submission
 
-Open the public frontend in a signed-out browser. Score an open event, verify that both probability values and the percentage-point difference appear, expand model information, and check warnings and the chart. Try an invalid link and ensure the error is readable. Check at a narrow/mobile width. Record the result in `docs/browser-verification.json` and save hosted screenshots to `docs/images/app-live.jpg` and `docs/images/app-live-mobile.jpg`. Replace earlier model-dependent screenshots only after checking that the page displays the corrected model card and predictions; the README can then embed the corrected desktop capture.
+Open the public frontend in a signed-out browser. Score an open event, verify that both probability values and the percentage-point difference appear, expand model information, and check warnings and the chart. Try an invalid link and ensure the error is readable. Check at a narrow/mobile width. Record the result in `docs/browser-verification.json` and save hosted screenshots to `docs/images/app-live.jpg` and `docs/images/app-live-mobile.jpg`. The recorded corrected-release inspection passed these checks on November 23, 2026; [browser evidence](browser-verification.json) links the refreshed desktop, model-information, and mobile captures. Repeat this inspection after future changes.
 
-Konur's merged [PR #5](https://github.com/hmccormack1/beat-the-crowd/pull/5) contains the original second-half implementation. The timestamp correction is on `feature/fix-snapshot-time-units`. The expanded local suite passed 113 tests. [Corrected CI at `238bcef`](https://github.com/hmccormack1/beat-the-crowd/actions/runs/45282540880) completed at **2026-11-23 22:48:48 UTC**, with both jobs passing, including fresh Docker training and serving the resulting model for HTTP checks. [CI evidence](ci-verification.json) lists every job and step. The correction review/merge and verified corrected public release remain pending. Pre-correction CI missed the timestamp-unit error and is historical evidence only.
+Konur's merged [PR #5](https://github.com/hmccormack1/beat-the-crowd/pull/5) contains the original second-half implementation. The timestamp correction is on `feature/fix-snapshot-time-units`. The expanded local suite passed 113 tests. [Corrected CI at `7470d97`](https://github.com/hmccormack1/beat-the-crowd/actions/runs/45283570027) completed at **2026-11-23 22:55:25 UTC**, with both jobs passing, including fresh Docker training and serving the resulting model for HTTP checks. [CI evidence](ci-verification.json) lists every job and step. Corrected public HTTP, hosted browser, and independent artifact-integrity checks passed for that release. Correction PR review/merge remains pending. Pre-correction CI missed the timestamp-unit error and is historical evidence only.
 
 ## Troubleshooting
 

@@ -1,16 +1,49 @@
 {
-  "recorded_at": "2026-11-23T22:42:50+00:00",
-  "status": "corrected_model_deployment_pending",
+  "checked_at": "2026-11-23T23:14:03+00:00",
+  "status": "corrected_public_http_artifact_and_browser_passed",
+  "authentication": "none",
+  "source_commit": "7470d972efa47bfecbb7bf45dd0ebb6fefcca7d4",
+  "model_trained_at": "2026-11-23T23:07:08+00:00",
+  "mlflow_run_id": "06ce2592fc0345669447c8a67246f443",
+  "config_hash": "06593fd4bb",
   "api_url": "https://beat-the-crowd-api-64wo2oghua-ue.a.run.app",
   "frontend_url": "https://beat-the-crowd-app-64wo2oghua-ue.a.run.app",
-  "reason": "The v1 model used an invalid training timestamp conversion that allowed future prices into historical snapshots. These earlier HTTP/UI observations do not validate the corrected replacement model.",
-  "corrected_local_training": "training-verification.json",
-  "corrected_local_http": "local-verification.json",
-  "replacement_model_url": "https://storage.googleapis.com/beat-the-crowd/v2-corrected/model/model.joblib",
-  "replacement_manifest_url": "https://storage.googleapis.com/beat-the-crowd/v2-corrected/model/manifest.json",
-  "required_next_checks": [
-    "Publish a fresh corrected model/card and manifest using scripts/publish_corrected_model.sh.",
-    "Deploy both services and verify the served model card matches the published corrected release.",
-    "Regenerate public HTTP and browser evidence for the replacement model."
-  ]
+  "checks": [
+    {
+      "endpoint": "GET /health",
+      "result": "passed"
+    },
+    {
+      "endpoint": "GET /model",
+      "result": "passed"
+    },
+    {
+      "endpoint": "POST /predict",
+      "result": "passed"
+    },
+    {
+      "endpoint": "POST /predict/market",
+      "result": "passed",
+      "market_count": 5
+    },
+    {
+      "endpoint": "GET front-end / and /_stcore/health",
+      "result": "passed"
+    }
+  ],
+  "evidence": "deployment-verification.json",
+  "independent_release_verification": {
+    "status": "passed",
+    "evidence": "release-verification.json",
+    "manifest": "release-manifest.json",
+    "verified_at": "2026-11-23T23:12:57+00:00"
+  },
+  "hosted_browser_verification": {
+    "status": "passed",
+    "evidence": "browser-verification.json",
+    "verified_at": "2026-11-23T23:14:03+00:00"
+  },
+  "correction_merge_status": "pending_pr_creation_review_and_merge",
+  "superseded_model": "The former v1 model used an invalid timestamp conversion. Its results and earlier deployment/browser evidence are superseded; this report identifies the corrected Docker release.",
+  "public_http_verified_at": "2026-11-23T23:11:11+00:00"
 }
