@@ -83,3 +83,18 @@ model:
   logistic_regression:
     C: 0.5
     max_iter: 2000
+
+# ---------------------------------------------------------------------------
+# 6. Experiment tracking
+# ---------------------------------------------------------------------------
+mlflow:
+  tracking_uri: sqlite:///mlflow.db
+  experiment_name: beat-the-crowd
+  run_name: null            # null -> auto-generated from model type + timestamp
+
+# ---------------------------------------------------------------------------
+# 7. Outputs + serving
+# ---------------------------------------------------------------------------
+output:
+  model_dir: models
+  reports_dir: reports
