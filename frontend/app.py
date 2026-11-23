@@ -124,9 +124,9 @@ def render_market(market: dict, index: int):
 def render_model(base_url: str):
     with st.expander("How good is this model?", expanded=False):
         st.write(
-            "The crowd is hard to beat. We chose XGBoost on validation performance, "
-            "then evaluated it on later, unseen events. A lower Brier score means "
-            "better probability estimates."
+            "Compare the selected model with the crowd on held-out events. "
+            "Model selection uses validation performance; the test metrics below "
+            "are reported separately. A lower Brier score means better probability estimates."
         )
         try:
             card = load_model(base_url)
@@ -149,6 +149,9 @@ def render_model(base_url: str):
             if low <= 0 <= high:
                 st.warning("The interval includes zero. This test does not establish "
                            "that the model consistently beats the crowd.")
+            elif high < 0:
+                st.warning("The interval is below zero: the model performed worse than "
+                           "the crowd on this test set. A disagreement is not evidence of an advantage.")
         roi = metrics.get("test_trade_roi")
         if isinstance(roi, (int, float)):
             st.write(f"Paper-trading return on the test set: **{roi:+.1%}**, before fees "
@@ -253,8 +256,8 @@ else:
 render_model(base_url)
 st.markdown(
     '<div class="footer"><strong>Research, not a betting strategy.</strong><br>'
-    'Not financial or betting advice. On recent data the model’s edge over the crowd '
-    'is small and statistically uncertain. This app reads public data and places no trades. '
+    'Not financial or betting advice. Model estimates can be wrong; review the held-out '
+    'results and uncertainty before interpreting a disagreement. This app reads public data and places no trades. '
     'Market access varies by location.</div>',
     unsafe_allow_html=True,
 )

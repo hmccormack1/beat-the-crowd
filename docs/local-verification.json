@@ -1,6 +1,6 @@
 {
-  "verified_at": "2026-11-23T20:29:56+00:00",
-  "api_url": "http://localhost:8080",
+  "verified_at": "2026-11-23T22:37:50+00:00",
+  "api_url": "http://localhost:8090",
   "checks": [
     {
       "endpoint": "GET /health",
@@ -13,10 +13,10 @@
       "endpoint": "GET /model",
       "response": {
         "model_type": "xgboost",
-        "trained_at": "2026-11-23T03:10:49+00:00",
-        "git_commit": "unknown",
-        "config_hash": "53270abe1f",
-        "mlflow_run_id": "d7c17eb1eaab4705b6450055681cefca",
+        "trained_at": "2026-11-23T22:33:13+00:00",
+        "git_commit": "855945b",
+        "config_hash": "a2232ab075",
+        "mlflow_run_id": "a7c90470a1404d08a710ab7ff9dc1f9d",
         "features": [
           "crowd_p",
           "crowd_logit",
@@ -44,31 +44,31 @@
           "category",
           "question"
         ],
-        "n_markets": 2562,
-        "n_snapshots": 9903,
+        "n_markets": 7385,
+        "n_snapshots": 23135,
         "test_period": [
-          "2026-10-01",
-          "2026-11-10"
+          "2026-10-04",
+          "2026-11-14"
         ],
         "metrics": {
-          "test_model_brier": 0.0469,
-          "test_model_log_loss": 0.1828,
-          "test_model_auc": 0.9871,
-          "test_model_ece": 0.0538,
-          "test_model_accuracy": 0.94,
-          "test_crowd_brier": 0.0495,
-          "test_crowd_log_loss": 0.1935,
-          "test_crowd_auc": 0.9868,
-          "test_crowd_ece": 0.0822,
-          "test_crowd_accuracy": 0.9405,
-          "test_brier_skill_vs_crowd": 0.0518,
-          "test_brier_skill_ci_low": -0.0379,
-          "test_brier_skill_ci_high": 0.1644,
-          "test_trade_n_bets": 774,
-          "test_trade_bet_rate": 0.3835,
-          "test_trade_roi": -0.0269,
-          "test_n_rows": 2018,
-          "test_base_rate": 0.502
+          "test_model_brier": 0.1093,
+          "test_model_log_loss": 0.3565,
+          "test_model_auc": 0.9301,
+          "test_model_ece": 0.0433,
+          "test_model_accuracy": 0.8503,
+          "test_crowd_brier": 0.1072,
+          "test_crowd_log_loss": 0.3406,
+          "test_crowd_auc": 0.9315,
+          "test_crowd_ece": 0.0323,
+          "test_crowd_accuracy": 0.8484,
+          "test_brier_skill_vs_crowd": -0.0197,
+          "test_brier_skill_ci_low": -0.0372,
+          "test_brier_skill_ci_high": -0.0051,
+          "test_trade_n_bets": 617,
+          "test_trade_bet_rate": 0.1707,
+          "test_trade_roi": -0.3797,
+          "test_n_rows": 3614,
+          "test_base_rate": 0.5028
         }
       }
     },
@@ -99,10 +99,10 @@
         "as_of": "2025-11-03T13:00:00Z"
       },
       "response": {
-        "model_probability": 0.2858,
+        "model_probability": 0.4623,
         "crowd_probability": 0.51,
-        "edge": -0.2242,
-        "verdict": "YES looks overpriced",
+        "edge": -0.0477,
+        "verdict": "agrees with the crowd",
         "warnings": [
           "Very little price history so far."
         ],
@@ -140,30 +140,30 @@
         "url": "fed-decision-in-december-20260729232808632"
       },
       "event_title": "Fed Decision in December?",
-      "scored_at": "2026-11-23T20:29:57+00:00",
+      "scored_at": "2026-11-23T22:37:51+00:00",
       "market_count": 5,
       "predictions": [
         {
           "question": "Will there be no change in Fed interest rates after the December 2026 meeting?",
-          "crowd_probability": 0.0315,
-          "model_probability": 0.034,
-          "edge": 0.0025,
+          "crowd_probability": 0.032,
+          "model_probability": 0.0599,
+          "edge": 0.0279,
           "verdict": "agrees with the crowd",
           "warnings": []
         },
         {
           "question": "Will the Fed increase interest rates by 25 bps after the December 2026 meeting?",
           "crowd_probability": 0.935,
-          "model_probability": 0.9579,
-          "edge": 0.0229,
+          "model_probability": 0.9067,
+          "edge": -0.0283,
           "verdict": "agrees with the crowd",
           "warnings": []
         },
         {
           "question": "Will the Fed decrease interest rates by 25 bps after the December 2026 meeting?",
-          "crowd_probability": 0.0035,
-          "model_probability": 0.0677,
-          "edge": 0.0642,
+          "crowd_probability": 0.0025,
+          "model_probability": 0.0559,
+          "edge": 0.0534,
           "verdict": "YES looks underpriced",
           "warnings": [
             "The crowd is already near-certain (outside 3%-97%); the model was only trained on contested markets."
@@ -171,17 +171,17 @@
         },
         {
           "question": "Will the Fed increase interest rates by 50+ bps after the December 2026 meeting?",
-          "crowd_probability": 0.0335,
-          "model_probability": 0.0677,
-          "edge": 0.0342,
+          "crowd_probability": 0.0355,
+          "model_probability": 0.0559,
+          "edge": 0.0204,
           "verdict": "agrees with the crowd",
           "warnings": []
         },
         {
           "question": "Will the Fed decrease interest rates by 50+ bps after the December 2026 meeting?",
           "crowd_probability": 0.0015,
-          "model_probability": 0.0677,
-          "edge": 0.0662,
+          "model_probability": 0.0559,
+          "edge": 0.0544,
           "verdict": "YES looks underpriced",
           "warnings": [
             "The crowd is already near-certain (outside 3%-97%); the model was only trained on contested markets."
@@ -195,6 +195,6 @@
       "scope": "HTTP reachability only; browser interaction is verified separately."
     }
   ],
-  "frontend_url": "http://localhost:8501",
+  "frontend_url": "http://localhost:8510",
   "status": "passed"
 }

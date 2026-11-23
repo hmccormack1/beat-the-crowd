@@ -1,3 +1,6 @@
+SUPERSEDED — INVALID V1 MODEL
+The v1 model used an invalid training timestamp conversion that allowed future prices into historical snapshots. These earlier HTTP/UI observations do not validate the corrected replacement model.
+
 URL: https://beat-the-crowd-app-64wo2oghua-ue.a.run.app/
 
 - link "Skip to main content":
