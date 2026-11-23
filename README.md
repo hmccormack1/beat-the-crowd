@@ -231,10 +231,13 @@ If `models/model.joblib` exists when you build, it's baked into the image. Other
 ### Tests
 
 ```bash
+pip install -r frontend/requirements.txt  # also needed for frontend interaction tests
 pytest -q
 ```
 
-The tests run on synthetic data, so they need no network access. The two we care about most check that features **never see prices after the snapshot time**, and that **no event appears in more than one split**. CI runs the tests and a Docker build on every pull request.
+The automated suite uses synthetic data and mocked upstream responses, so it needs no network access. It checks that features **never see prices after the snapshot time**, **no event appears in more than one split**, the frontend renders predictions and handles failures, and smoke checks reject invalid deployment evidence. CI runs these tests, builds both images, runs the backend tests inside Docker, and makes a real HTTP prediction with the published model. It runs on feature branches, pull requests, and `main`.
+
+On November 23, 2026, all **76 tests passed** locally. A complete XGBoost run from the public cloud data reproduced every reported test metric exactly, and its MLflow run completed with the effective config, model, and report artifacts. The unmocked frontend also scored five live markets through the local API. See [local HTTP verification](docs/local-verification.json). These local checks do not establish public deployment or browser visual quality; those require the separate deployment checks below.
 
 ### Deploy to the cloud
 
@@ -249,7 +252,7 @@ Use the [deployment guide](docs/deployment.md) for the reproducible Cloud Run AP
 | Cloud Build | Builds the repository's Dockerfile for deployment |
 | Artifact Registry | Stores the container image used by Cloud Run |
 | Streamlit Community Cloud or Cloud Run | Hosts the Streamlit frontend; the live-links table identifies the verified deployment |
-| GitHub Actions | Runs automated checks on pull requests and `main` |
+| GitHub Actions | Runs automated tests and both container builds on feature branches, pull requests, and `main` |
 | MLflow (local SQLite) | Tracks training parameters, metrics, model artifacts, and plots; it is not a hosted cloud service |
 
 See the [requirement-to-evidence checklist](docs/requirements-checklist.md) for submission review. A deployment script is not evidence that a public deployment is running: the live URLs and smoke-check results must also be verified.

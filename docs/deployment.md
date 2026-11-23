@@ -96,7 +96,7 @@ This validates the loaded model, model metadata, and a deterministic JSON reques
 
 ```bash
 python scripts/smoke_test.py --api-url "$API_URL" \
-  --market-url https://polymarket.com/event/fed-decision-in-december \
+  --market-url https://polymarket.com/event/fed-decision-in-december-20260729232808632 \
   --frontend-url "$APP_URL" \
   --output docs/deployment-verification.json
 ```

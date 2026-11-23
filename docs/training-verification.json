@@ -1,0 +1,38 @@
+{
+  "scope": "local full pipeline from public v1 cloud data; not a public deployment",
+  "status": "FINISHED",
+  "model_type": "xgboost",
+  "n_markets": 2562,
+  "n_snapshots": 9903,
+  "test_period": [
+    "2026-10-01",
+    "2026-11-10"
+  ],
+  "metrics": {
+    "test_model_brier": 0.0469,
+    "test_model_log_loss": 0.1828,
+    "test_model_auc": 0.9871,
+    "test_model_ece": 0.0538,
+    "test_model_accuracy": 0.94,
+    "test_crowd_brier": 0.0495,
+    "test_crowd_log_loss": 0.1935,
+    "test_crowd_auc": 0.9868,
+    "test_crowd_ece": 0.0822,
+    "test_crowd_accuracy": 0.9405,
+    "test_brier_skill_vs_crowd": 0.0518,
+    "test_brier_skill_ci_low": -0.0379,
+    "test_brier_skill_ci_high": 0.1644,
+    "test_trade_n_bets": 774,
+    "test_trade_bet_rate": 0.3835,
+    "test_trade_roi": -0.0269,
+    "test_n_rows": 2018,
+    "test_base_rate": 0.502
+  },
+  "matches_published_test_metrics": true,
+  "effective_configuration_artifact_verified": true,
+  "artifact_directories": [
+    "config",
+    "model",
+    "reports"
+  ]
+}
