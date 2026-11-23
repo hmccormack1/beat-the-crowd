@@ -28,11 +28,17 @@ jobs:
         run: docker run --rm beat-the-crowd --help
       - name: Run backend tests inside the image
         run: docker run --rm --entrypoint pytest beat-the-crowd -q
+      - name: Train corrected model inside the image
+        run: |
+          trap 'docker logs training; docker rm -f training' EXIT
+          docker run --name training -e BTC_SOURCE_COMMIT="$GITHUB_SHA" beat-the-crowd train
+          docker cp training:/app/models/v2-corrected "$RUNNER_TEMP/corrected-model"
       - name: Build frontend image
         run: docker build -f Dockerfile.frontend -t beat-the-crowd-frontend .
       - name: Verify container health and real model prediction
         run: |
-          docker run -d --name api -p 8080:8080 beat-the-crowd
+          docker run -d --name api -p 8080:8080 \
+            -v "$RUNNER_TEMP/corrected-model:/app/models/v2-corrected:ro" beat-the-crowd
           trap 'docker logs api; docker rm -f api' EXIT
           for attempt in $(seq 1 60); do
             if curl --fail --silent http://localhost:8080/health; then break; fi

@@ -27,8 +27,9 @@ def public_url(cfg: dict, name: str) -> str:
     return f"https://storage.googleapis.com/{s['bucket']}/{s['prefix']}/{name}"
 
 
-def blob_name(cfg: dict, name: str) -> str:
-    return f"{cfg['storage']['prefix']}/{name}"
+def blob_name(cfg: dict, name: str, *, prefix: str | None = None) -> str:
+    base = cfg["storage"]["prefix"] if prefix is None else prefix
+    return f"{base}/{name}"
 
 
 def download_file(url: str, dest: Path, chunk: int = 1 << 20) -> Path:
@@ -44,11 +45,11 @@ def download_file(url: str, dest: Path, chunk: int = 1 << 20) -> Path:
     return dest
 
 
-def upload_file(cfg: dict, local: Path, name: str) -> str:
+def upload_file(cfg: dict, local: Path, name: str, *, prefix: str | None = None) -> str:
     from google.cloud import storage  # imported lazily: only uploads need credentials
 
     client = storage.Client()
-    blob = client.bucket(cfg["storage"]["bucket"]).blob(blob_name(cfg, name))
+    blob = client.bucket(cfg["storage"]["bucket"]).blob(blob_name(cfg, name, prefix=prefix))
     blob.upload_from_filename(str(local))
     uri = f"gs://{cfg['storage']['bucket']}/{blob.name}"
     log.info("uploaded %s -> %s", local, uri)
@@ -85,8 +86,10 @@ def main() -> None:
             upload_file(cfg, out_dir / files[key], files[key])
     elif args.action == "upload-model":
         model_dir = resolve(cfg["output"]["model_dir"])
-        upload_file(cfg, model_dir / "model.joblib", files["model"])
-        upload_file(cfg, model_dir / "model_card.json", files["model_card"])
+        # Model versions can advance without relocating the cleaned v1 dataset.
+        prefix = cfg["storage"].get("model_prefix", cfg["storage"]["prefix"])
+        upload_file(cfg, model_dir / "model.joblib", files["model"], prefix=prefix)
+        upload_file(cfg, model_dir / "model_card.json", files["model_card"], prefix=prefix)
 
 
 if __name__ == "__main__":
