@@ -1,0 +1,98 @@
+{
+  "url": "https://github.com/hmccormack1/beat-the-crowd/actions/runs/45282540880",
+  "head_sha": "238bcefdae90ec43128705da07174481578d2c85",
+  "jobs": [
+    {
+      "name": "test",
+      "conclusion": "success",
+      "started_at": "2026-11-23T22:44:40Z",
+      "completed_at": "2026-11-23T22:45:33Z",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-python@v5",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run pip install -r requirements.txt -r frontend/requirements.txt",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run pytest -q",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-python@v5",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "name": "docker-build",
+      "conclusion": "success",
+      "started_at": "2026-11-23T22:45:35Z",
+      "completed_at": "2026-11-23T22:48:48Z",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Build image",
+          "conclusion": "success"
+        },
+        {
+          "name": "Image runs and prints its commands",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run backend tests inside the image",
+          "conclusion": "success"
+        },
+        {
+          "name": "Train corrected model inside the image",
+          "conclusion": "success"
+        },
+        {
+          "name": "Build frontend image",
+          "conclusion": "success"
+        },
+        {
+          "name": "Verify container health and real model prediction",
+          "conclusion": "success"
+        },
+        {
+          "name": "Verify frontend container starts",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ]
+}
