@@ -145,3 +145,36 @@ def test_trending_selection_fills_input_and_failure_clears_old_result(app_fixtur
     assert not app.exception
     assert any("open Yes/No" in error.value for error in app.error)
     assert not any(metric.value == "55.0%" for metric in app.metric)
+
+
+@pytest.mark.parametrize("base_url", [
+    "https://", "http:///missing-host", "ftp://api.example.test",
+    "https://[invalid", "http://localhost:invalid",
+])
+def test_client_rejects_invalid_api_configuration(base_url):
+    with pytest.raises(APIError, match="not configured"):
+        APIClient(base_url)
+
+
+@pytest.mark.parametrize("metrics", [
+    [], "unavailable", {"test_model_brier": "0.0469"},
+    {"test_brier_skill_vs_crowd": float("nan")},
+])
+def test_client_handles_invalid_model_metrics(metrics, monkeypatch):
+    monkeypatch.setattr(requests, "request", lambda *a, **k: Response({"metrics": metrics}))
+    with pytest.raises(APIError, match="evaluation details"):
+        APIClient("https://api.example.test").model_info()
+
+
+def test_chart_keeps_midnight_samples_on_their_utc_day():
+    pytest.importorskip("altair")
+    from frontend.charts import probability_history
+    spec = probability_history([
+        {"t": 1672531199, "p": .4},  # December 31, immediately before midnight UTC
+        {"t": 1672531200, "p": .5},  # January 1, midnight UTC
+    ], .6).to_dict()
+    history = spec["layer"][0]
+    assert history["encoding"]["x"]["scale"]["type"] == "utc"
+    assert history["encoding"]["tooltip"][0]["type"] == "nominal"
+    rows = spec["datasets"][history["data"]["name"]]
+    assert [row["date_utc"] for row in rows] == ["Dec 31, 2022", "Jan 01, 2023"]

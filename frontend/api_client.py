@@ -1,6 +1,7 @@
 """Small, testable HTTP boundary; the frontend never loads a model."""
 from __future__ import annotations
 
+import math
 import re
 from urllib.parse import urlparse
 
@@ -36,7 +37,17 @@ def normalize_market_input(value: str) -> str:
 class APIClient:
     def __init__(self, base_url: str):
         self.base_url = base_url.strip().rstrip("/")
-        if urlparse(self.base_url).scheme not in {"http", "https"}:
+        try:
+            parsed = urlparse(self.base_url)
+            valid = (
+                parsed.scheme in {"http", "https"} and bool(parsed.hostname)
+                and not parsed.username and not parsed.password
+                and not parsed.query and not parsed.fragment
+            )
+            parsed.port  # Validate a supplied port before making a request.
+        except ValueError:
+            valid = False
+        if not valid:
             raise APIError("The app's API address is not configured correctly.")
 
     def _request(self, method: str, path: str, **kwargs):
@@ -94,4 +105,17 @@ class APIClient:
         payload = self._request("GET", "/model")
         if not isinstance(payload, dict):
             raise APIError("Model details are unavailable right now.")
+        metrics = payload.get("metrics", {})
+        if not isinstance(metrics, dict):
+            raise APIError("Model evaluation details are unavailable right now.")
+        shown_metrics = (
+            "test_model_brier", "test_crowd_brier", "test_brier_skill_vs_crowd",
+            "test_brier_skill_ci_low", "test_brier_skill_ci_high", "test_trade_roi",
+        )
+        for key in shown_metrics:
+            if key in metrics:
+                value = metrics[key]
+                if (isinstance(value, bool) or not isinstance(value, (int, float))
+                        or not math.isfinite(value)):
+                    raise APIError("Model evaluation details are unavailable right now.")
         return payload
