@@ -237,7 +237,7 @@ pytest -q
 
 The automated suite uses synthetic data and mocked upstream responses, so it needs no network access. It checks that features **never see prices after the snapshot time**, **no event appears in more than one split**, the frontend renders predictions and handles failures, and smoke checks reject invalid deployment evidence. CI runs these tests, builds both images, runs the backend tests inside Docker, and makes a real HTTP prediction with the published model. It runs on feature branches, pull requests, and `main`.
 
-On November 23, 2026, all **76 tests passed** locally. A complete XGBoost run from the public cloud data reproduced every reported test metric exactly, and its MLflow run completed with the effective config, model, and report artifacts. The unmocked frontend also scored five live markets through the local API. See [local HTTP verification](docs/local-verification.json). These local checks do not establish public deployment or browser visual quality; those require the separate deployment checks below.
+On November 23, 2026, all **83 tests passed** locally. A complete XGBoost run from the public cloud data reproduced every reported test metric exactly, and its MLflow run completed with the effective config, model, and report artifacts. The unmocked frontend also scored five live markets through the local API. See [local HTTP verification](docs/local-verification.json). These local checks do not establish public deployment or browser visual quality; those require the separate deployment checks below.
 
 ### Deploy to the cloud
 
@@ -305,7 +305,7 @@ See the [requirement-to-evidence checklist](docs/requirements-checklist.md) for 
 
 ## Collaboration and reproducibility
 
-Each team member must open at least one pull request from their own GitHub account. Hadley's pipeline, API, and documentation were delivered through PRs #1-#4. Konur's second-half changes use a feature branch and focused commits, with a pull request and passing checks required before final submission. The repository's PR history is the evidence; this paragraph alone does not satisfy that requirement.
+Hadley's pipeline, API, and documentation were delivered through PRs #1-#4. Konur's second-half changes are in [PR #5](https://github.com/hmccormack1/beat-the-crowd/pull/5), submitted from his own account, on `feature/complete-deployment-frontend` with focused commits. The [CI history](https://github.com/hmccormack1/beat-the-crowd/actions) records the automated tests and both container checks. Final submission also requires verified public deployment links.
 
 We keep data, fitted models, local MLflow databases, virtual environments, and secrets out of Git. Training downloads the versioned public data, records the code revision and configuration hash, and saves evaluation artifacts. Re-ingesting the live platform can produce a different dataset; use the hosted `v1` data for comparison with the reported experiment.
 
