@@ -4,22 +4,12 @@ Deploy the model API before the frontend. Both deployments use the same source r
 
 ## Deployment status
 
-Both services were deployed using Cloud Shell Docker, but unauthenticated HTTP checks return **403 Forbidden**. Public deployment verification is therefore blocked on service invocation permissions. The [latest access check](deployment-status.json) records this failure; it is not successful smoke-test evidence.
+Both services are publicly accessible. Unauthenticated checks passed at **2026-11-23 22:06 UTC**: API health and model metadata, raw JSON prediction, a live event returning five scored markets, and frontend HTML/health. The [public smoke report](deployment-verification.json) records the requests and results. Browser interaction is recorded separately in [browser verification](browser-verification.json).
 
-- Frontend: https://beat-the-crowd-app-64wo2oghua-ue.a.run.app
-- API: https://beat-the-crowd-api-64wo2oghua-ue.a.run.app
+- [Public frontend](https://beat-the-crowd-app-64wo2oghua-ue.a.run.app)
+- [Public API documentation](https://beat-the-crowd-api-64wo2oghua-ue.a.run.app/docs)
 
-The project owner or a Cloud Run administrator can enable invocation on only these services:
-
-```bash
-for service in beat-the-crowd-api beat-the-crowd-app; do
-  gcloud run services add-iam-policy-binding "$service" \
-    --project=project-48739550-1716-4b50-877 \
-    --region=us-east1 --member=allUsers --role=roles/run.invoker
-done
-```
-
-This does not require a rebuild or a project-wide role grant to the deployer. It requires `run.services.setIamPolicy`; see [Google's public-access documentation](https://docs.cloud.google.com/run/docs/authenticating/public). After access is enabled, run the public smoke test below and preserve `docs/deployment-verification.json`. Update this status and the README only after those checks succeed.
+The deployed images were built with Docker in Cloud Shell and stored in Artifact Registry. The source-build alternative below remains available when its service account has the required permissions. Verification records the service behavior at that time; rerun the smoke checks after changing a deployment.
 
 ## Prerequisites
 
@@ -38,7 +28,7 @@ gcloud auth list
 bash scripts/deploy_cloud_run.sh api
 ```
 
-The script defaults to the project and region above, enables Cloud Run, Cloud Build, and Artifact Registry as needed, and deploys `beat-the-crowd-api` from the root Dockerfile. It uses 1 CPU, 1 GiB memory, a 60-second request timeout, no minimum instances, at most two instances, and public invocation. Cloud Build builds the container and Artifact Registry stores it; local Docker is not required for this deployment path. [Google's source-deployment documentation](https://docs.cloud.google.com/run/docs/deploying-source-code)
+The script defaults to the project and region above, enables Cloud Run, Cloud Build, and Artifact Registry as needed, and deploys `beat-the-crowd-api` from the root Dockerfile. It uses 1 CPU, 1 GiB memory, a 60-second request timeout, no minimum instances, at most two instances, and requests public invocation. The script then checks unauthenticated health access and fails if access is denied. Cloud Build builds the container and Artifact Registry stores it; local Docker is not required for this deployment path. [Google's source-deployment documentation](https://docs.cloud.google.com/run/docs/deploying-source-code)
 
 To select a different authorized destination explicitly:
 
@@ -134,11 +124,27 @@ The example event may eventually close. If it does, choose an open event from `/
 
 ## Browser verification and submission
 
-Open the public frontend in a signed-out browser. Score an open event, verify that both probability values and the percentage-point difference appear, expand model information, and check warnings and the chart. Try an invalid link and ensure the error is readable. Check at a narrow/mobile width. Save an actual app screenshot to `docs/images/app.png` and embed it in the README.
+Open the public frontend in a signed-out browser. Score an open event, verify that both probability values and the percentage-point difference appear, expand model information, and check warnings and the chart. Try an invalid link and ensure the error is readable. Check at a narrow/mobile width. Record the result in `docs/browser-verification.json` and save hosted screenshots to `docs/images/app-live.jpg` and `docs/images/app-live-mobile.jpg`. The README embeds the desktop capture.
 
-Record the API and frontend URLs in the README, attach smoke-check evidence, and link Konur's pull request in `docs/requirements-checklist.md`. Confirm that GitHub CI passed on the final revision. Each team member must submit a PR from their own account; a local branch or commit is insufficient.
+The README links both deployed services and the public smoke evidence. Konur's [PR #5](https://github.com/hmccormack1/beat-the-crowd/pull/5) contains the second-half implementation. [CI at implementation revision `70595a6`](https://github.com/hmccormack1/beat-the-crowd/actions/runs/45265056619) passed; check PR #5 for the status of later documentation commits. Each team member's PR is linked in the submission checklist.
 
 ## Troubleshooting
+
+### Public invocation denied
+
+If a future deployment succeeds but unauthenticated requests return **401 or 403**, a project owner or Cloud Run administrator can authorize invocation on only these services:
+
+```bash
+for service in beat-the-crowd-api beat-the-crowd-app; do
+  gcloud run services add-iam-policy-binding "$service" \
+    --project=project-48739550-1716-4b50-877 \
+    --region=us-east1 --member=allUsers --role=roles/run.invoker
+done
+```
+
+This needs `run.services.setIamPolicy`, but no image rebuild or project-wide role grant to the deployer. See [Google's public-access documentation](https://docs.cloud.google.com/run/docs/authenticating/public). Rerun the public smoke test after changing access. The deployment script reports an access failure; it does not grant IAM roles automatically.
+
+### Other failures
 
 - **Missing model or model card:** check the public bucket URLs in `config.yaml` and the [model card](https://storage.googleapis.com/beat-the-crowd/v1/model/model_card.json). Publish matching artifacts from the same training run, then deploy a new API revision. Never hand-edit metrics to fill a missing response.
 - **Build or service-account permission failure:** use the exact failing permission to request a targeted fix from the project owner. Source-build IAM requirements are documented by Google; the script does not grant roles.

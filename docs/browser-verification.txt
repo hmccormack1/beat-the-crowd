@@ -1,0 +1,163 @@
+URL: https://beat-the-crowd-app-64wo2oghua-ue.a.run.app/
+
+- link "Skip to main content":
+  - /url: "#stMain"
+- banner:
+  - button "Main menu":
+- main:
+  - paragraph: PREDICTION MARKETS, WITH PERSPECTIVE
+  - heading "Beat the Crowd" [level=1]:
+    - text: Beat the Crowd
+    - link "Link to heading":
+      - /url: "#beat-the-crowd"
+  - paragraph: Paste a Polymarket link. See what the crowd thinks, and what a model built from about 12,000 resolved markets thinks.
+  - paragraph: Polymarket event or market
+  - button "Help for Polymarket event or market":
+  - textbox "Polymarket event or market":
+    - /placeholder: https://polymarket.com/event/...
+    - text: https://polymarket.com/event/fed-decision-in-december-20260729232808632
+  - button "Score it":
+    - paragraph: Score it
+  - paragraph: An independent probability estimate. No trades, no account, no guarantees.
+  - paragraph: Or start with a trending event
+  - button "Fed Decision in December?":
+    - paragraph: Fed Decision in December?
+  - button "New NVIDIA CEO named by December 31, 2026?":
+    - paragraph: New NVIDIA CEO named by December 31, 2026?
+  - button "What price will Bitcoin hit in November?":
+    - paragraph: What price will Bitcoin hit in November?
+  - button "Next French Presidential Election":
+    - paragraph: Next French Presidential Election
+  - button "Israel x Iran ceasefire continues through...?":
+    - paragraph: Israel x Iran ceasefire continues through...?
+  - button "What price will Bitcoin hit in 2026?":
+    - paragraph: What price will Bitcoin hit in 2026?
+  - separator
+  - paragraph: Your second opinion
+  - heading "Fed Decision in December?" [level=2]:
+    - text: Fed Decision in December?
+    - link "Link to heading":
+      - /url: "#fed-decision-in-december"
+  - paragraph: Scored at 2026-11-23 22:07:48 UTC · Prices change. Submit again to refresh.
+  - paragraph: Showing 5 scored markets. Events are limited to the 12 highest-volume eligible markets.
+  - heading "Will there be no change in Fed interest rates after the December 2026 meeting?" [level=3]:
+    - text: Will there be no change in Fed interest rates after the December 2026 meeting?
+    - link "Link to heading":
+      - /url: "#will-there-be-no-change-in-fed-interest-rates-after-the-december-2026-meeting"
+  - paragraph: CROWD · YES probability
+  - paragraph: 3.2%
+  - paragraph: MODEL · YES probability
+  - button "Help for MODEL · YES probability":
+  - paragraph: 3.4%
+  - paragraph: +0.2 pp vs. crowd
+  - paragraph:
+    - generic: agrees with the crowd
+  - button "Show data":
+  - button "Download as PNG":
+  - button "Fullscreen":
+  - generic "Vega visualization":
+  - paragraph: "Blue: daily crowd price · Dashed amber: model estimate now (not a historical model forecast)."
+  - paragraph: 16 days to end · $13,861,198 total volume · Politics · Ends Dec 09, 2026
+  - heading "Will the Fed increase interest rates by 25 bps after the December 2026 meeting?" [level=3]:
+    - text: Will the Fed increase interest rates by 25 bps after the December 2026 meeting?
+    - link "Link to heading":
+      - /url: "#will-the-fed-increase-interest-rates-by-25-bps-after-the-december-2026-meeting"
+  - paragraph: CROWD · YES probability
+  - paragraph: 93.5%
+  - paragraph: MODEL · YES probability
+  - button "Help for MODEL · YES probability":
+  - paragraph: 95.8%
+  - paragraph: +2.3 pp vs. crowd
+  - paragraph:
+    - generic: agrees with the crowd
+  - button "Show data":
+  - button "Download as PNG":
+  - button "Fullscreen":
+  - generic "Vega visualization":
+  - paragraph: "Blue: daily crowd price · Dashed amber: model estimate now (not a historical model forecast)."
+  - paragraph: 16 days to end · $12,140,958 total volume · Politics · Ends Dec 09, 2026
+  - heading "Will the Fed decrease interest rates by 25 bps after the December 2026 meeting?" [level=3]:
+    - text: Will the Fed decrease interest rates by 25 bps after the December 2026 meeting?
+    - link "Link to heading":
+      - /url: "#will-the-fed-decrease-interest-rates-by-25-bps-after-the-december-2026-meeting"
+  - paragraph: CROWD · YES probability
+  - paragraph: 0.2%
+  - paragraph: MODEL · YES probability
+  - button "Help for MODEL · YES probability":
+  - paragraph: 6.8%
+  - paragraph: +6.5 pp vs. crowd
+  - paragraph:
+    - generic: YES looks underpriced
+  - alert:
+    - paragraph: The crowd is already near-certain (outside 3%-97%); the model was only trained on contested markets.
+  - button "Show data":
+  - button "Download as PNG":
+  - button "Fullscreen":
+  - generic "Vega visualization":
+  - paragraph: "Blue: daily crowd price · Dashed amber: model estimate now (not a historical model forecast)."
+  - paragraph: 16 days to end · $10,046,165 total volume · Politics · Ends Dec 09, 2026
+  - heading "Will the Fed increase interest rates by 50+ bps after the December 2026 meeting?" [level=3]:
+    - text: Will the Fed increase interest rates by 50+ bps after the December 2026 meeting?
+    - link "Link to heading":
+      - /url: "#will-the-fed-increase-interest-rates-by-50-bps-after-the-december-2026-meeting"
+  - paragraph: CROWD · YES probability
+  - paragraph: 3.4%
+  - paragraph: MODEL · YES probability
+  - button "Help for MODEL · YES probability":
+  - paragraph: 6.8%
+  - paragraph: +3.4 pp vs. crowd
+  - paragraph:
+    - generic: agrees with the crowd
+  - button "Show data":
+  - button "Download as PNG":
+  - button "Fullscreen":
+  - generic "Vega visualization":
+  - paragraph: "Blue: daily crowd price · Dashed amber: model estimate now (not a historical model forecast)."
+  - paragraph: 16 days to end · $9,367,672 total volume · Politics · Ends Dec 09, 2026
+  - heading "Will the Fed decrease interest rates by 50+ bps after the December 2026 meeting?" [level=3]:
+    - text: Will the Fed decrease interest rates by 50+ bps after the December 2026 meeting?
+    - link "Link to heading":
+      - /url: "#will-the-fed-decrease-interest-rates-by-50-bps-after-the-december-2026-meeting"
+  - paragraph: CROWD · YES probability
+  - paragraph: 0.1%
+  - paragraph: MODEL · YES probability
+  - button "Help for MODEL · YES probability":
+  - paragraph: 6.8%
+  - paragraph: +6.6 pp vs. crowd
+  - paragraph:
+    - generic: YES looks underpriced
+  - alert:
+    - paragraph: The crowd is already near-certain (outside 3%-97%); the model was only trained on contested markets.
+  - button "Show data":
+  - button "Download as PNG":
+  - button "Fullscreen":
+  - generic "Vega visualization":
+  - paragraph: "Blue: daily crowd price · Dashed amber: model estimate now (not a historical model forecast)."
+  - paragraph: 16 days to end · $8,431,412 total volume · Politics · Ends Dec 09, 2026
+  - generic "How good is this model?" [active]:
+    - generic: keyboard_arrow_down
+    - paragraph: How good is this model?
+  - paragraph: The crowd is hard to beat. We chose XGBoost on validation performance, then evaluated it on later, unseen events. A lower Brier score means better probability estimates.
+  - paragraph: Model Brier · test
+  - paragraph: "0.0469"
+  - paragraph: Crowd Brier · test
+  - paragraph: "0.0495"
+  - paragraph: Relative Brier improvement
+  - paragraph: +5.2%
+  - paragraph:
+    - strong: "95% confidence interval: -3.8% to +16.4%."
+    - text: This interval resamples entire events to account for related markets.
+  - alert:
+    - paragraph: The interval includes zero. This test does not establish that the model consistently beats the crowd.
+  - paragraph:
+    - text: "Paper-trading return on the test set:"
+    - strong: "-2.7%"
+    - text: ", before fees and slippage. Better probabilities do not guarantee profit."
+  - paragraph: "Test period: 2026-10-01 to 2026-11-10 · Trained Nov 23, 2026 · Model: xgboost"
+  - paragraph: "After filtering: 2,562 markets and 9,903 snapshots across all splits. The source dataset contains about 12,000 resolved markets."
+  - paragraph: Training covers contested Yes/No markets with at least $25,000 in volume, using snapshots 1–90 days before their deadline. Markets outside that range can be unreliable; check every warning above.
+  - link "Explore the methodology":
+    - /url: https://github.com/hmccormack1/beat-the-crowd#how-it-works
+    - paragraph: Explore the methodology
+  - strong: Research, not a betting strategy.
+  - text: Not financial or betting advice. On recent data the model’s edge over the crowd is small and statistically uncertain. This app reads public data and places no trades. Market access varies by location.

@@ -1,0 +1,58 @@
+{
+  "verified_at": "2026-11-23T22:09:34+00:00",
+  "status": "passed",
+  "method": "Interactive browser inspection of the public Cloud Run frontend, without signing in",
+  "frontend_url": "https://beat-the-crowd-app-64wo2oghua-ue.a.run.app",
+  "api_url": "https://beat-the-crowd-api-64wo2oghua-ue.a.run.app",
+  "event_url": "https://polymarket.com/event/fed-decision-in-december-20260729232808632",
+  "scored_at": "2026-11-23T22:07:48+00:00",
+  "observations": [
+    {
+      "check": "Initial load and trending events",
+      "result": "passed",
+      "detail": "The public app rendered its input form and six live trending event buttons."
+    },
+    {
+      "check": "Invalid link",
+      "result": "passed",
+      "input": "https://example.com/not-a-market",
+      "message": "Use a polymarket.com event or market link, or paste its event slug."
+    },
+    {
+      "check": "Trending selection and prediction",
+      "result": "passed",
+      "detail": "Selecting Fed Decision in December? populated the input. Score it displayed five live market cards with crowd/model probabilities and percentage-point differences."
+    },
+    {
+      "check": "Charts and warnings",
+      "result": "passed",
+      "detail": "All five cards rendered daily price charts and the current model estimate. Two markets displayed the near-certain/out-of-training-range warning."
+    },
+    {
+      "check": "Model information",
+      "result": "passed",
+      "model_brier": 0.0469,
+      "crowd_brier": 0.0495,
+      "brier_skill_percent": 5.2,
+      "confidence_interval_percent": [
+        -3.8,
+        16.4
+      ],
+      "paper_trading_roi_percent": -2.7,
+      "detail": "Expanded panel displayed test/training dates and stated that the confidence interval includes zero."
+    },
+    {
+      "check": "Responsive presentation",
+      "result": "passed",
+      "detail": "Inspected the default narrow browser layout and a 1280 x 900 desktop viewport. Narrow cards stack the two probabilities; desktop cards display them side by side. Charts render in both layouts. Temporary viewport override was reset."
+    }
+  ],
+  "evidence": {
+    "desktop_screenshot": "images/app-live.jpg",
+    "narrow_screenshot": "images/app-live-mobile.jpg",
+    "warnings_and_model_screenshot": "images/app-live-model.jpg",
+    "final_dom_snapshot": "browser-verification.txt",
+    "public_http_report": "deployment-verification.json"
+  },
+  "scope": "Observed live behavior at the recorded time. This is a manual browser report; automated test and container results are recorded separately in CI. No trades were placed."
+}

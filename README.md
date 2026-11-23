@@ -10,8 +10,8 @@ Paste any live Polymarket link into the app and it shows you the crowd's probabi
 
 | | |
 |---|---|
-| **Live app** | [Cloud Run app](https://beat-the-crowd-app-64wo2oghua-ue.a.run.app) — deployed; public access pending (HTTP 403) |
-| **API** | [API docs](https://beat-the-crowd-api-64wo2oghua-ue.a.run.app/docs) — deployed; public access pending (HTTP 403) |
+| **Live app** | [Cloud Run app](https://beat-the-crowd-app-64wo2oghua-ue.a.run.app) — public |
+| **API** | [API docs](https://beat-the-crowd-api-64wo2oghua-ue.a.run.app/docs) — public |
 | **Data** | `gs://beat-the-crowd/v1/` (public, see [Data](#data)) |
 
 ---
@@ -213,9 +213,9 @@ Open the local URL printed by Streamlit (normally `http://localhost:8501`). For 
 
 The displayed edge is a difference between two probability estimates, not an expected investment return. The dashed line on the chart is today's model estimate, not a historical backtest of the model.
 
-![Live market comparison in the local browser](docs/images/app.jpg)
+![Live market comparison in the public Cloud Run app](docs/images/app-live.jpg)
 
-Local browser capture using live Polymarket data through the HTTP API. Desktop and narrow-screen layouts, trending selection, prediction cards, charts, warnings, and model details were inspected. This screenshot is not evidence of public Cloud Run access; the deployed endpoints currently require the permission fix in the [deployment guide](docs/deployment.md).
+The hosted interface uses live Polymarket data through the deployed HTTP API. Browser inspection is recorded separately in [browser verification](docs/browser-verification.json), with a [mobile capture](docs/images/app-live-mobile.jpg). The [public HTTP report](docs/deployment-verification.json) verifies API predictions and frontend reachability.
 
 ### Docker
 
@@ -241,7 +241,9 @@ pytest -q
 
 The automated suite uses synthetic data and mocked upstream responses, so it needs no network access. It checks that features **never see prices after the snapshot time**, **no event appears in more than one split**, the frontend renders predictions and handles failures, and smoke checks reject invalid deployment evidence. CI runs these tests, builds both images, runs the backend tests inside Docker, and makes a real HTTP prediction with the published model. It runs on feature branches, pull requests, and `main`.
 
-On November 23, 2026, all **90 tests passed** locally. A complete XGBoost run from the public cloud data reproduced every reported test metric exactly, and its MLflow run completed with the effective config, model, and report artifacts. The unmocked frontend also scored five live markets through the local API, and the local browser inspection is shown above. See [local HTTP verification](docs/local-verification.json). Public deployment still requires the unauthenticated checks below.
+On November 23, 2026, all **90 tests passed** locally. [Implementation CI at `70595a6`](https://github.com/hmccormack1/beat-the-crowd/actions/runs/45265056619) passed the automated suite, both container builds, backend container tests, a real-model HTTP prediction, and frontend startup. Subsequent documentation-only commits are checked in [PR #5](https://github.com/hmccormack1/beat-the-crowd/pull/5). A complete XGBoost run from the public cloud data reproduced every reported test metric exactly, with the effective config, model, and reports saved in MLflow; see [training evidence](docs/training-verification.json).
+
+At **22:06 UTC on November 23, 2026**, unauthenticated requests to the public Cloud Run services passed `/health`, `/model`, raw `/predict`, a live `/predict/market` request returning five scored markets, and frontend HTML/health checks. See the [public HTTP verification report](docs/deployment-verification.json). Browser interaction is documented separately above; these checks record behavior at verification time, not a guarantee of future availability.
 
 ### Deploy to the cloud
 
@@ -259,7 +261,7 @@ Use the [deployment guide](docs/deployment.md) for the reproducible Cloud Run AP
 | GitHub Actions | Runs automated tests and both container builds on feature branches, pull requests, and `main` |
 | MLflow (local SQLite) | Tracks training parameters, metrics, model artifacts, and plots; it is not a hosted cloud service |
 
-See the [requirement-to-evidence checklist](docs/requirements-checklist.md) for submission review. A deployment script is not evidence that a public deployment is running: the live URLs and smoke-check results must also be verified.
+See the [requirement-to-evidence checklist](docs/requirements-checklist.md) for the implementation, deployment, and collaboration evidence.
 
 ---
 
@@ -309,7 +311,7 @@ See the [requirement-to-evidence checklist](docs/requirements-checklist.md) for 
 
 ## Collaboration and reproducibility
 
-Hadley's pipeline, API, and documentation were delivered through PRs #1-#4. Konur's second-half changes are in [PR #5](https://github.com/hmccormack1/beat-the-crowd/pull/5), submitted from his own account, on `feature/complete-deployment-frontend` with focused commits. The [CI history](https://github.com/hmccormack1/beat-the-crowd/actions) records the automated tests and both container checks. Final submission also requires verified public deployment links.
+Hadley's pipeline, API, and documentation were delivered through PRs #1-#4. Konur's second-half changes are in [PR #5](https://github.com/hmccormack1/beat-the-crowd/pull/5), submitted from his own account, on `feature/complete-deployment-frontend` with focused commits. The [CI history](https://github.com/hmccormack1/beat-the-crowd/actions) records the automated tests and both container checks. The public deployment links and verification reports are listed above.
 
 We keep data, fitted models, local MLflow databases, virtual environments, and secrets out of Git. Training downloads the versioned public data, records the code revision and configuration hash, and saves evaluation artifacts. Re-ingesting the live platform can produce a different dataset; use the hosted `v1` data for comparison with the reported experiment.
 
