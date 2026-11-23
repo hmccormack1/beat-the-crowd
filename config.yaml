@@ -1,0 +1,44 @@
+# Beat the Crowd: pipeline configuration
+# Every knob that changes the data, the features, or the model lives here,
+# so a run can be reproduced from this file + the git commit alone.
+
+project:
+  name: beat-the-crowd
+  seed: 42
+
+# ---------------------------------------------------------------------------
+# 1. Ingestion: pulling resolved markets from Polymarket's public APIs
+# ---------------------------------------------------------------------------
+ingest:
+  gamma_url: https://gamma-api.polymarket.com
+  clob_url: https://clob.polymarket.com
+  end_date_min: "2024-01-01"     # only markets scheduled to end after this date
+  end_date_max: "2026-11-15"
+  min_volume_usd: 25000          # thin markets have noisy, easily-moved prices
+  min_duration_days: 7           # need some price history to build features from
+  # Since 2025 the feed is flooded with 5-minute crypto "Up or Down" markets and
+  # single-game sports props. They aren't the kind of question this project is
+  # about, and scanning past them would take hours, so skip them at the source.
+  exclude_tag_ids:
+    - "100639"   # Games (individual sports matches)
+    - "101757"   # Recurring (hourly/daily repeating markets)
+    - "102127"   # Up or Down
+  max_markets: 12000
+  page_size: 50
+  price_fidelity_minutes: 1440   # daily price points
+  request_workers: 12
+  raw_dir: data/raw
+  processed_dir: data/processed
+
+# ---------------------------------------------------------------------------
+# 2. Cloud storage: cleaned data + trained model live in a GCS bucket
+# ---------------------------------------------------------------------------
+storage:
+  bucket: beat-the-crowd          # public, read-only for everyone
+  prefix: v1
+  public_read: true               # objects are world-readable, so training needs no credentials
+  files:
+    markets: markets.parquet
+    prices: prices.parquet
+    model: model/model.joblib
+    model_card: model/model_card.json
