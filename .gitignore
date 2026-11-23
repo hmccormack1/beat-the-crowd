@@ -1,0 +1,22 @@
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+*.egg-info/
+
+# data + artifacts live in cloud storage / MLflow, not git
+/data/
+models/*
+!models/.gitkeep
+/mlruns/
+/mlartifacts/
+mlflow.db
+/reports/
+
+# local env + editor
+.env
+.DS_Store
+.vscode/
+.idea/
