@@ -4,21 +4,21 @@
 
 Prediction markets had a huge 2026. Around the midterms, Polymarket odds were quoted on cable news next to the polls, and people are now betting real money on everything from Fed decisions to ceasefires. The pitch for these markets is that the price *is* the best available probability: if a contract trades at 30¢, the crowd thinks there's a 30% chance it happens.
 
-We wanted to test that pitch. We pulled every resolved Yes/No market we could find, froze each one at several points before it closed, and trained a model to predict the outcome using only what was known at that moment, *including the crowd's own price*. If the crowd is efficient, the model should learn to just copy the price. If the crowd has systematic blind spots, the model should find them.
+We wanted to test that pitch. We pulled every resolved Yes/No market we could find, froze each one at several points before it closed, and trained a model to predict the outcome using prices available at that moment, *including the crowd's own price*, plus the downloaded market metadata. The limitations below distinguish these retrospective snapshots from a fully archived real-time experiment. If the crowd is efficient, the model should learn to just copy the price. If the crowd has systematic blind spots, the model should find them.
 
 Paste any live Polymarket link into the app and it shows you the crowd's probability next to the model's.
 
 | | |
 |---|---|
-| **Live app** | _coming soon (front-end in progress)_ |
-| **API** | _coming soon (Cloud Run deployment in progress)_ |
+| **Live app** | [Cloud Run app](https://beat-the-crowd-app-64wo2oghua-ue.a.run.app) — public |
+| **API** | [API docs](https://beat-the-crowd-api-64wo2oghua-ue.a.run.app/docs) — public |
 | **Data** | `gs://beat-the-crowd/v1/` (public, see [Data](#data)) |
 
 ---
 
 ## What we found
 
-**Short version: the crowd is hard to beat, but it isn't perfectly calibrated, and a model that knows how it's off does a bit better.** The improvement is real but small, it varies a lot from month to month, and it doesn't reliably turn into money.
+**Short version: the crowd is hard to beat, but it isn't perfectly calibrated, and a model that knows how it's off does a bit better.** The measured improvement is small and statistically uncertain: the XGBoost confidence intervals include zero. Results vary by period and do not reliably turn into money.
 
 | | Validation (mid-Aug → Oct 2026) | Test (Oct → mid-Nov 2026) |
 |---|---|---|
@@ -32,7 +32,7 @@ Paste any live Polymarket link into the app and it shows you the crowd's probabi
 
 Confidence intervals come from a bootstrap that resamples whole *events*, since markets inside one event aren't independent. The test period covers the run-up to the November 3 midterms.
 
-**1. The crowd is systematically under-confident.** Across all 45,080 snapshots, contracts trading around 58¢ resolved YES 65% of the time, and ones at 85¢ about 91%. Long shots go the other way: 14¢ contracts hit only 11%. This is the classic *favorite-longshot bias* from horse racing, showing up on Polymarket. A logistic regression on nothing but the crowd's price, just recalibrating it, already beats the raw price on the test set.
+**1. The crowd is systematically under-confident.** Across all 45,080 snapshots, contracts trading around 58¢ resolved YES 65% of the time, and ones at 85¢ about 91%. Long shots go the other way: 14¢ contracts hit only 11%. This is the classic *favorite-longshot bias* from horse racing, showing up on Polymarket. Our logistic-regression baseline also beats the raw price on the test set, using the same feature pipeline as XGBoost.
 
 ![Crowd calibration](docs/images/longshot_bias.png)
 
@@ -63,7 +63,7 @@ Polymarket APIs ──► ingest ──► clean ──► GCS bucket ──► 
 
 ### Data
 
-Everything comes from Polymarket's free, key-less public APIs:
+The source is [Polymarket's public market-data APIs](https://docs.polymarket.com/):
 
 - **Gamma API** (`gamma-api.polymarket.com`) for event and market metadata, tags, and how each market resolved
 - **CLOB API** (`clob.polymarket.com`) for the daily price history of the YES token
@@ -82,9 +82,11 @@ The cleaned tables live in a public Google Cloud Storage bucket:
 
 | File | What's in it |
 |---|---|
-| `v1/markets.parquet` | one row per market: question, event, tags, start/end dates, volume, outcome |
-| `v1/prices.parquet` | one row per market per day: YES price |
-| `v1/model/model.joblib` | the trained pipeline the API serves |
+| [markets.parquet](https://storage.googleapis.com/beat-the-crowd/v1/markets.parquet) | one row per market: question, event, tags, start/end dates, volume, outcome |
+| [prices.parquet](https://storage.googleapis.com/beat-the-crowd/v1/prices.parquet) | one row per market per day: YES price |
+| [model.joblib](https://storage.googleapis.com/beat-the-crowd/v1/model/model.joblib) | the trained pipeline the API serves |
+
+The companion [model card](https://storage.googleapis.com/beat-the-crowd/v1/model/model_card.json) records training provenance and test metrics. Only load serialized models from a source you trust; this deployment uses our project bucket.
 
 Because the bucket is public, `python -m src.data.storage download` (and the training script) can fetch the data without a Google Cloud account.
 
@@ -120,7 +122,7 @@ We score everything twice, once for the model and once for the crowd (the raw ma
 
 ### Experiment tracking
 
-Every training run is logged to **MLflow**: all config values as params, the git commit and a hash of the config as tags, train/val/test metrics for model and crowd, plots (calibration, long-shot bias, error by horizon, feature importance), and the fitted model.
+Every training run is logged to **MLflow**: ingestion, feature, split, and model settings as params, the git commit and a hash of the config as tags, train/val/test metrics for model and crowd, plots (calibration, long-shot bias, error by horizon, feature importance), and the fitted model.
 
 ![An MLflow run](docs/images/mlflow_run.png)
 
@@ -128,12 +130,14 @@ Every training run is logged to **MLflow**: all config values as params, the git
 
 ## Running it yourself
 
+All commands below run from the repository root unless noted. The API and frontend are separate processes; the frontend calls the API over HTTP and never loads a model.
+
 ### Setup
 
-Requires Python 3.11+.
+Use Python 3.12 for parity with the Docker images and hosted deployment.
 
 ```bash
-git clone https://github.com/<you>/beat-the-crowd.git
+git clone https://github.com/hmccormack1/beat-the-crowd.git
 cd beat-the-crowd
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
@@ -180,21 +184,42 @@ curl -X POST localhost:8080/predict \
         "start_date": "2025-10-01T00:00:00Z",
         "end_date": "2025-12-10T00:00:00Z",
         "tags": ["Economy", "Fed"],
-        "as_of": "2025-11-03T12:00:00Z"
+        "as_of": "2025-11-03T13:00:00Z"
       }'
 ```
 
 | Endpoint | What it does |
 |---|---|
 | `POST /predict` | score one market from raw JSON (question, price history, dates, tags) |
-| `POST /predict/market` | score every open Yes/No market behind a polymarket.com link |
+| `POST /predict/market` | score up to 12 open Yes/No markets behind a Polymarket link, highest volume first |
 | `GET /markets/trending` | busy events right now, to give the front-end something to show |
 | `GET /model` | the model card: training date, git commit, test metrics |
 | `GET /health` | liveness check |
 
+### Front-end
+
+The Streamlit app lets you paste a Polymarket event or market URL, or choose a trending event. Each result compares crowd and model probabilities, shows the difference in percentage points, displays the model's warnings, and charts the observed YES price against the current model estimate. The model information panel retrieves held-out metrics and provenance from `/model`.
+
+With the API already running in another terminal:
+
+```bash
+python -m venv .venv-frontend
+source .venv-frontend/bin/activate
+pip install -r frontend/requirements.txt
+API_URL=http://localhost:8080 streamlit run frontend/app.py
+```
+
+Open the local URL printed by Streamlit (normally `http://localhost:8501`). For a hosted API, set `API_URL` to its HTTPS base URL without an endpoint suffix. The app reads `API_URL` from Streamlit Secrets first, then the environment, and otherwise uses `http://localhost:8080`. Do not commit a `secrets.toml` file. Trending suggestions are cached for five minutes. Prediction requests show a loading state and allow up to 60 seconds for a cold start. A missing event, unavailable upstream service, or timeout produces a readable error instead of a fabricated prediction.
+
+The displayed edge is a difference between two probability estimates, not an expected investment return. The dashed line on the chart is today's model estimate, not a historical backtest of the model.
+
+![Live market comparison in the public Cloud Run app](docs/images/app-live.jpg)
+
+The hosted interface uses live Polymarket data through the deployed HTTP API. Browser inspection is recorded separately in [browser verification](docs/browser-verification.json), with a [mobile capture](docs/images/app-live-mobile.jpg). The [public HTTP report](docs/deployment-verification.json) verifies API predictions and frontend reachability.
+
 ### Docker
 
-One image does everything. The default command serves the API, and any other pipeline command can be passed instead:
+The root image supports the complete data/training/serving pipeline. The default command serves the API, and any other pipeline command can be passed instead:
 
 ```bash
 docker build -t beat-the-crowd .
@@ -203,19 +228,40 @@ docker run beat-the-crowd train                         # full training run insi
 docker run --entrypoint pytest beat-the-crowd -q        # tests
 ```
 
+The frontend has its own lightweight `Dockerfile.frontend`; see the [deployment guide](docs/deployment.md).
+
 If `models/model.joblib` exists when you build, it's baked into the image. Otherwise the API downloads it from the bucket on startup.
 
 ### Tests
 
 ```bash
+pip install -r frontend/requirements.txt  # also needed for frontend interaction tests
 pytest -q
 ```
 
-The tests run on synthetic data, so they need no network access. The two we care about most check that features **never see prices after the snapshot time**, and that **no event appears in more than one split**. CI runs the tests and a Docker build on every pull request.
+The automated suite uses synthetic data and mocked upstream responses, so it needs no network access. It checks that features **never see prices after the snapshot time**, **no event appears in more than one split**, the frontend renders predictions and handles failures, and smoke checks reject invalid deployment evidence. CI runs these tests, builds both images, runs the backend tests inside Docker, and makes a real HTTP prediction with the published model. It runs on feature branches, pull requests, and `main`.
+
+On November 23, 2026, all **90 tests passed** locally. [Implementation CI at `70595a6`](https://github.com/hmccormack1/beat-the-crowd/actions/runs/45265056619) passed the automated suite, both container builds, backend container tests, a real-model HTTP prediction, and frontend startup. Subsequent documentation-only commits are checked in [PR #5](https://github.com/hmccormack1/beat-the-crowd/pull/5). A complete XGBoost run from the public cloud data reproduced every reported test metric exactly, with the effective config, model, and reports saved in MLflow; see [training evidence](docs/training-verification.json).
+
+At **22:06 UTC on November 23, 2026**, unauthenticated requests to the public Cloud Run services passed `/health`, `/model`, raw `/predict`, a live `/predict/market` request returning five scored markets, and frontend HTML/health checks. See the [public HTTP verification report](docs/deployment-verification.json). Browser interaction is documented separately above; these checks record behavior at verification time, not a guarantee of future availability.
 
 ### Deploy to the cloud
 
-_In progress: Cloud Run deployment steps._
+Use the [deployment guide](docs/deployment.md) for the reproducible Cloud Run API deployment, frontend hosting, HTTP smoke checks, and troubleshooting. `scripts/deploy_cloud_run.sh` deploys the API to the existing project using the repository Dockerfile. `scripts/smoke_test.py` verifies the running service independently of the browser.
+
+### Cloud services
+
+| Service | Role |
+|---|---|
+| Google Cloud Storage | Public cleaned data and trained model artifacts in `gs://beat-the-crowd/v1/` |
+| Cloud Run | FastAPI and Streamlit services, each with minimum instances 0 and maximum instances 2 |
+| Cloud Build / Cloud Shell Docker | Remote-build workflow or local image build in Cloud Shell; the current deployment used Cloud Shell Docker |
+| Artifact Registry | Stores the container image used by Cloud Run |
+| Streamlit Community Cloud | Documented alternative frontend host; current frontend is on Cloud Run |
+| GitHub Actions | Runs automated tests and both container builds on feature branches, pull requests, and `main` |
+| MLflow (local SQLite) | Tracks training parameters, metrics, model artifacts, and plots; it is not a hosted cloud service |
+
+See the [requirement-to-evidence checklist](docs/requirements-checklist.md) for the implementation, deployment, and collaboration evidence.
 
 ---
 
@@ -242,13 +288,34 @@ _In progress: Cloud Run deployment steps._
 │   └── serving/
 │       ├── predictor.py     loads the model, scores raw inputs or live links
 │       └── app.py           FastAPI
+├── frontend/                Streamlit UI and lightweight HTTP client
+├── scripts/                 cloud deployment and HTTP smoke checks
+├── docs/                    deployment guide and requirement evidence
 ├── tests/
 └── .github/workflows/ci.yml
 ```
 
 ## Limitations and ethics
 
-_In progress._
+**A small probability difference is not a trading recommendation.** The served model's test Brier skill is +5.2%, but its 95% event-bootstrap interval runs from -3.8% to +16.4%. The test paper-trading return is negative (-2.7%) before fees and slippage. We show both baselines, uncertainty, out-of-distribution warnings, and a visible disclaimer. Labels such as "YES looks underpriced" can still encourage gambling, so the app places no bets and does not connect to a wallet.
+
+**The sample is narrow and changes over time.** This is one platform, covering July 2025 through mid-November 2026, mostly 2026. We select resolved binary markets with at least $25,000 in eventual volume and at least seven days' duration, exclude individual sports games and recurring/up-down markets, and train only on contested snapshots (3%-97% crowd probability). Results do not establish performance for other platforms, low-liquidity markets, or the market mix that appears tomorrow. Serving warnings identify some of these mismatches, but cannot detect every kind of distribution shift.
+
+**Historical snapshots are a retrospective approximation.** Price features use only observations at or before the snapshot. Other metadata (including question text, tags, and the event's market count) comes from the downloaded resolved-market records, rather than a point-in-time metadata archive. Filtering by eventual volume also introduces hindsight into the sample. Event grouping prevents the same event appearing in different splits, but forecasting windows can still overlap in calendar time. A stronger evaluation would archive metadata prospectively and use purged, rolling time windows.
+
+**Rows are not independent.** Multiple snapshots describe the same market, and markets within an event can move or resolve together. We therefore bootstrap whole events and keep events together in train/validation/test. The effective sample size is smaller than the number of snapshots; a confidence interval for aggregate Brier skill is not a confidence interval for an individual prediction. The multi-market predictions are scored independently, so they are not guaranteed to sum to 100% in a mutually exclusive event.
+
+**Prices can reflect manipulation and private information.** A thin market can be pushed around, while participants with access to private information can move the price before the rest of the public knows why. Our model uses those prices and can inherit their distortions. If enough people acted on a published signal, their trades would change the prices and could erase the apparent edge. This feedback makes a fixed historical backtest an incomplete account of deployment.
+
+**Operational and access limits matter.** Live results depend on Polymarket and the cloud services being available, and daily price observations may lag current trading. The app reads public data and does not execute trades. Users remain responsible for the platform's applicable terms and access restrictions; the project does not help bypass them. Do not submit personal or confidential information in the URL input.
+
+## Collaboration and reproducibility
+
+Hadley's pipeline, API, and documentation were delivered through PRs #1-#4. Konur's second-half changes are in [PR #5](https://github.com/hmccormack1/beat-the-crowd/pull/5), submitted from his own account, on `feature/complete-deployment-frontend` with focused commits. The [CI history](https://github.com/hmccormack1/beat-the-crowd/actions) records the automated tests and both container checks. The public deployment links and verification reports are listed above.
+
+We keep data, fitted models, local MLflow databases, virtual environments, and secrets out of Git. Training downloads the versioned public data, records the code revision and configuration hash, and saves evaluation artifacts. Re-ingesting the live platform can produce a different dataset; use the hosted `v1` data for comparison with the reported experiment.
+
+AI assistance was used to help implement, review, test, and document this project. The team is responsible for reviewing the code, interpreting results, and complying with the course's AI-use policy.
 
 ## Team
 

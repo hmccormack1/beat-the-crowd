@@ -15,6 +15,7 @@ RUN pip install -r requirements.txt
 COPY config.yaml pyproject.toml ./
 COPY src/ src/
 COPY tests/ tests/
+COPY scripts/ scripts/
 # models/ is optional: if a trained model is present it gets baked in,
 # otherwise the API downloads it from cloud storage on startup.
 COPY models/ models/

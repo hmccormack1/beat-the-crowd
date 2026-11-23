@@ -1,0 +1,21 @@
+{
+  "checked_at": "2026-11-23T22:06:31+00:00",
+  "status": "passed",
+  "authentication": "none",
+  "checks": [
+    {
+      "service": "api",
+      "url": "https://beat-the-crowd-api-64wo2oghua-ue.a.run.app/health",
+      "result": "passed",
+      "model_loaded": true
+    },
+    {
+      "service": "frontend",
+      "url": "https://beat-the-crowd-app-64wo2oghua-ue.a.run.app/",
+      "result": "passed"
+    }
+  ],
+  "evidence": "deployment-verification.json",
+  "browser_evidence": "browser-verification.json",
+  "resolved_incident": "Initial unauthenticated requests returned HTTP 403. The project owner enabled public invocation; subsequent unauthenticated HTTP checks and hosted browser interactions passed."
+}

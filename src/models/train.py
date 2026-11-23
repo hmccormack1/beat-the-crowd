@@ -126,7 +126,8 @@ def run(cfg: dict) -> dict:
                 feature_names(model), clf.feature_importances_, reports / "feature_importance.png"))
         for path in plots + [reports / "test_by_horizon.csv"]:
             mlflow.log_artifact(str(path), artifact_path="reports")
-        mlflow.log_artifact(str(resolve("config.yaml")), artifact_path="config")
+        # Persist the effective config, including custom files and CLI overrides.
+        mlflow.log_dict(cfg, "config/config.yaml")
 
         # 5. persist
         card = {

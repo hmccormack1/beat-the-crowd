@@ -1,0 +1,200 @@
+{
+  "verified_at": "2026-11-23T20:29:56+00:00",
+  "api_url": "http://localhost:8080",
+  "checks": [
+    {
+      "endpoint": "GET /health",
+      "response": {
+        "status": "ok",
+        "model_loaded": true
+      }
+    },
+    {
+      "endpoint": "GET /model",
+      "response": {
+        "model_type": "xgboost",
+        "trained_at": "2026-11-23T03:10:49+00:00",
+        "git_commit": "unknown",
+        "config_hash": "53270abe1f",
+        "mlflow_run_id": "d7c17eb1eaab4705b6450055681cefca",
+        "features": [
+          "crowd_p",
+          "crowd_logit",
+          "p_change_1d",
+          "p_change_7d",
+          "p_change_30d",
+          "p_max_to_date",
+          "p_min_to_date",
+          "p_range_7d",
+          "volatility_7d",
+          "volatility_all",
+          "days_to_end",
+          "log_days_to_end",
+          "market_age_days",
+          "frac_life_elapsed",
+          "n_price_points",
+          "event_n_markets",
+          "log_event_n_markets",
+          "neg_risk",
+          "q_len_words",
+          "q_has_deadline",
+          "q_has_threshold",
+          "q_has_vs",
+          "q_has_number",
+          "category",
+          "question"
+        ],
+        "n_markets": 2562,
+        "n_snapshots": 9903,
+        "test_period": [
+          "2026-10-01",
+          "2026-11-10"
+        ],
+        "metrics": {
+          "test_model_brier": 0.0469,
+          "test_model_log_loss": 0.1828,
+          "test_model_auc": 0.9871,
+          "test_model_ece": 0.0538,
+          "test_model_accuracy": 0.94,
+          "test_crowd_brier": 0.0495,
+          "test_crowd_log_loss": 0.1935,
+          "test_crowd_auc": 0.9868,
+          "test_crowd_ece": 0.0822,
+          "test_crowd_accuracy": 0.9405,
+          "test_brier_skill_vs_crowd": 0.0518,
+          "test_brier_skill_ci_low": -0.0379,
+          "test_brier_skill_ci_high": 0.1644,
+          "test_trade_n_bets": 774,
+          "test_trade_bet_rate": 0.3835,
+          "test_trade_roi": -0.0269,
+          "test_n_rows": 2018,
+          "test_base_rate": 0.502
+        }
+      }
+    },
+    {
+      "endpoint": "POST /predict",
+      "request": {
+        "question": "Will the Fed cut rates in December?",
+        "price_history": [
+          {
+            "t": 1762000000,
+            "p": 0.42
+          },
+          {
+            "t": 1762086400,
+            "p": 0.47
+          },
+          {
+            "t": 1762172800,
+            "p": 0.51
+          }
+        ],
+        "start_date": "2025-10-01T00:00:00Z",
+        "end_date": "2025-12-10T00:00:00Z",
+        "tags": [
+          "Economy",
+          "Fed"
+        ],
+        "as_of": "2025-11-03T13:00:00Z"
+      },
+      "response": {
+        "model_probability": 0.2858,
+        "crowd_probability": 0.51,
+        "edge": -0.2242,
+        "verdict": "YES looks overpriced",
+        "warnings": [
+          "Very little price history so far."
+        ],
+        "features": {
+          "crowd_p": 0.51,
+          "crowd_logit": 0.040005334613699206,
+          "p_change_1d": 0.040000000000000036,
+          "p_change_7d": 0.09000000000000002,
+          "p_change_30d": 0.09000000000000002,
+          "p_max_to_date": 0.51,
+          "p_min_to_date": 0.42,
+          "p_range_7d": 0.09000000000000002,
+          "volatility_7d": 0.004999999999999977,
+          "volatility_all": 0.004999999999999977,
+          "days_to_end": 36.458333333333336,
+          "log_days_to_end": 3.6232292041236747,
+          "market_age_days": 33.541666666666664,
+          "frac_life_elapsed": 0.4791666666666667,
+          "n_price_points": 3.0,
+          "event_n_markets": 1.0,
+          "log_event_n_markets": 0.0,
+          "neg_risk": 0.0,
+          "q_len_words": 7.0,
+          "q_has_deadline": 0.0,
+          "q_has_threshold": 0.0,
+          "q_has_vs": 0.0,
+          "q_has_number": 0.0,
+          "category": "finance"
+        }
+      }
+    },
+    {
+      "endpoint": "POST /predict/market",
+      "request": {
+        "url": "fed-decision-in-december-20260729232808632"
+      },
+      "event_title": "Fed Decision in December?",
+      "scored_at": "2026-11-23T20:29:57+00:00",
+      "market_count": 5,
+      "predictions": [
+        {
+          "question": "Will there be no change in Fed interest rates after the December 2026 meeting?",
+          "crowd_probability": 0.0315,
+          "model_probability": 0.034,
+          "edge": 0.0025,
+          "verdict": "agrees with the crowd",
+          "warnings": []
+        },
+        {
+          "question": "Will the Fed increase interest rates by 25 bps after the December 2026 meeting?",
+          "crowd_probability": 0.935,
+          "model_probability": 0.9579,
+          "edge": 0.0229,
+          "verdict": "agrees with the crowd",
+          "warnings": []
+        },
+        {
+          "question": "Will the Fed decrease interest rates by 25 bps after the December 2026 meeting?",
+          "crowd_probability": 0.0035,
+          "model_probability": 0.0677,
+          "edge": 0.0642,
+          "verdict": "YES looks underpriced",
+          "warnings": [
+            "The crowd is already near-certain (outside 3%-97%); the model was only trained on contested markets."
+          ]
+        },
+        {
+          "question": "Will the Fed increase interest rates by 50+ bps after the December 2026 meeting?",
+          "crowd_probability": 0.0335,
+          "model_probability": 0.0677,
+          "edge": 0.0342,
+          "verdict": "agrees with the crowd",
+          "warnings": []
+        },
+        {
+          "question": "Will the Fed decrease interest rates by 50+ bps after the December 2026 meeting?",
+          "crowd_probability": 0.0015,
+          "model_probability": 0.0677,
+          "edge": 0.0662,
+          "verdict": "YES looks underpriced",
+          "warnings": [
+            "The crowd is already near-certain (outside 3%-97%); the model was only trained on contested markets."
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "GET front-end / and /_stcore/health",
+      "status": "ok",
+      "scope": "HTTP reachability only; browser interaction is verified separately."
+    }
+  ],
+  "frontend_url": "http://localhost:8501",
+  "status": "passed"
+}

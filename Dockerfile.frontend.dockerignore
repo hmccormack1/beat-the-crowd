@@ -1,0 +1,9 @@
+# The front-end image only needs its source, theme and light dependencies.
+*
+!frontend/
+!frontend/**
+frontend/**/__pycache__/
+frontend/**/*.pyc
+frontend/.streamlit/secrets.toml
+frontend/.env
+frontend/.env.*

@@ -1,6 +1,7 @@
 .git
 .github
 .venv
+.venv-frontend
 venv
 __pycache__
 *.pyc
@@ -8,6 +9,12 @@ __pycache__
 data/
 mlruns/
 mlflow.db
+mlartifacts/
+.env
+.env.*
+**/.streamlit/secrets.toml
+tmp/
+tests/test_frontend.py
 reports/
 docs/
 *.md
