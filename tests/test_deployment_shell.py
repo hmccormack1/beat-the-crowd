@@ -22,6 +22,10 @@ with open(os.environ["MOCK_LOG"], "a") as stream:
     stream.write(json.dumps([name, *args]) + "\\n")
 if name == "docker" and args[0] == os.environ.get("FAIL_DOCKER"):
     sys.exit(1)
+if name == "curl":
+    status = os.environ.get("CURL_HTTP_STATUS", "200")
+    print(status)
+    sys.exit(0 if status.startswith(("2", "3")) else 22)
 if name == "gcloud":
     if args[:2] == ["auth", "list"]:
         print("tester@example.com")
@@ -31,13 +35,13 @@ if name == "gcloud":
     elif args[:3] == ["artifacts", "repositories", "describe"]:
         sys.exit(1 if os.environ.get("REPOSITORY_MISSING") else 0)
 """
-    for name in ("gcloud", "docker"):
+    for name in ("gcloud", "docker", "curl"):
         cli = tmp_path / name
         cli.write_text(executable.replace("PYTHON", sys.executable), encoding="utf-8")
         cli.chmod(0o755)
     env = {k: v for k, v in os.environ.items() if k not in {
         "BUILD_MODE", "API_URL", "PROJECT_ID", "REGION", "API_SERVICE",
-        "FRONTEND_SERVICE", "ARTIFACT_REPOSITORY",
+        "FRONTEND_SERVICE", "ARTIFACT_REPOSITORY", "CURL_HTTP_STATUS",
     }}
     env.update(PATH=f"{tmp_path}:{env['PATH']}", MOCK_LOG=str(log))
 
@@ -119,3 +123,52 @@ def test_invalid_build_mode_exits_before_cloud_access(fake_cloud):
     assert result.returncode == 2
     assert "BUILD_MODE must be cloud or local" in result.stderr
     assert calls == []
+
+
+def test_success_checks_public_health_without_credentials(fake_cloud):
+    result, calls = fake_cloud()
+    assert result.returncode == 0, result.stderr
+    checks = [call for call in calls if call[0] == "curl"]
+    assert [call[-1] for call in checks] == [
+        "https://api.example.run.app/health",
+        "https://app.example.run.app/_stcore/health",
+    ]
+    for call in checks:
+        assert call[1] == "--disable"  # Ignore any auth configured in .curlrc.
+        assert "--fail" in call
+        assert "--max-time" in call and call[call.index("--max-time") + 1] == "60"
+        assert not any("Authorization" in arg for arg in call)
+    assert result.stdout.count("Public access verified:") == 2
+
+
+@pytest.mark.parametrize("status", ["401", "403"])
+def test_denied_api_invocation_is_not_reported_as_success(fake_cloud, status):
+    result, calls = fake_cloud(CURL_HTTP_STATUS=status)
+    assert result.returncode != 0
+    assert len(deployments(calls)) == 1  # Do not continue "all" after an inaccessible API.
+    assert "API_URL=" not in result.stdout
+    assert f"HTTP {status}" in result.stderr
+    assert "gcloud run services add-iam-policy-binding" in result.stderr
+    assert "beat-the-crowd-api" in result.stderr
+    assert "--member=allUsers" in result.stderr
+    assert "--role=roles/run.invoker" in result.stderr
+    # The owner command is advice only, never executed.
+    assert not any("add-iam-policy-binding" in call for call in calls)
+
+
+def test_denied_frontend_names_correct_service(fake_cloud):
+    result, calls = fake_cloud("frontend", CURL_HTTP_STATUS="403")
+    assert result.returncode != 0
+    assert "beat-the-crowd-app" in result.stderr
+    assert "FRONTEND_URL=" not in result.stdout
+    assert not any("add-iam-policy-binding" in call for call in calls)
+
+
+@pytest.mark.parametrize("status", ["000", "302", "503"])
+def test_other_public_check_failures_do_not_suggest_iam_grants(fake_cloud, status):
+    result, _ = fake_cloud("api", CURL_HTTP_STATUS=status)
+    assert result.returncode != 0
+    assert "Public access verified:" not in result.stdout
+    assert "API_URL=" not in result.stdout
+    assert "service logs and readiness" in result.stderr
+    assert "add-iam-policy-binding" not in result.stderr

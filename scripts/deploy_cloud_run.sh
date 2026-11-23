@@ -26,9 +26,11 @@ It configures Docker's gcloud credential helper only for REGION-docker.pkg.dev.
 Local mode requires a running Docker daemon and the user's existing repository
 write and Cloud Run deployment permissions; it creates no credentials or roles.
 
-Each service is public, scales to zero, and is limited to two instances.
+Each service requests public access, scales to zero, and is limited to two instances.
 This script enables required APIs but does not change billing or grant IAM roles.
-After deployment, run scripts/smoke_test.py to verify public HTTP access.
+Requires curl to verify unauthenticated health access after each deployment.
+A 401/403 exits with an owner command to fix public invocation; it runs no IAM fix.
+Then run scripts/smoke_test.py to verify model metadata and predictions.
 HELP
 }
 
@@ -58,6 +60,10 @@ cd "$REPO_ROOT"
 
 command -v gcloud >/dev/null || {
   echo "gcloud is required. Use Google Cloud Shell or install the Google Cloud CLI." >&2
+  exit 1
+}
+command -v curl >/dev/null || {
+  echo "curl is required to verify public deployment access. Cloud Shell includes it." >&2
   exit 1
 }
 if [[ "$BUILD_MODE" == local ]]; then
@@ -116,6 +122,33 @@ build_local() {
   docker push "$image"
 }
 
+verify_public_access() {
+  local service="$1" url="$2" path="$3" http_status curl_status=0
+  # No auth header: the rubric requires access for a visitor without credentials.
+  # Retry transient cold-start/server failures, but never treat 401/403 as success.
+  http_status="$(curl --disable --silent --show-error --fail --output /dev/null \
+    --write-out '%{http_code}' --connect-timeout 10 --max-time 60 \
+    --retry 2 --retry-delay 2 --retry-max-time 90 "$url$path")" || curl_status=$?
+  if [[ "$curl_status" == 0 && "$http_status" == 200 ]]; then
+    printf 'Public access verified: %s%s\n' "$url" "$path"
+    return 0
+  fi
+
+  printf 'Service %s was deployed, but public access to %s%s failed (HTTP %s).\n' \
+    "$service" "$url" "$path" "${http_status:-unknown}" >&2
+  if [[ "$http_status" == 401 || "$http_status" == 403 ]]; then
+    echo "Public invocation is denied. Ask the project owner to run:" >&2
+    printf '  ' >&2
+    printf '%q ' gcloud run services add-iam-policy-binding "$service" \
+      "--project=$PROJECT_ID" "--region=$REGION" \
+      --member=allUsers --role=roles/run.invoker >&2
+    printf '\nThen rerun scripts/smoke_test.py; rebuilding the image is unnecessary.\n' >&2
+  else
+    echo "Check Cloud Run service logs and readiness, then rerun scripts/smoke_test.py." >&2
+  fi
+  return 1
+}
+
 deploy_api() {
   local source_args=(--source=.)
   if [[ "$BUILD_MODE" == local ]]; then
@@ -129,6 +162,7 @@ deploy_api() {
     --memory=1Gi --cpu=1 --min-instances=0 --max-instances=2 \
     --timeout=60 --port=8080 --quiet
   API_URL="$(api_url)"
+  verify_public_access "$API_SERVICE" "$API_URL" /health
   printf 'API_URL=%s\nAPI docs: %s/docs\n' "$API_URL" "$API_URL"
 }
 
@@ -157,6 +191,7 @@ deploy_frontend() {
   local frontend_url
   frontend_url="$(gcloud run services describe "$FRONTEND_SERVICE" \
     --project="$PROJECT_ID" --region="$REGION" --format='value(status.url)')"
+  verify_public_access "$FRONTEND_SERVICE" "$frontend_url" /_stcore/health
   printf 'FRONTEND_URL=%s\nAPI_URL=%s\n' "$frontend_url" "$API_URL"
 }
 
