@@ -10,46 +10,44 @@ Paste any live Polymarket link into the app and it shows you the crowd's probabi
 
 | | |
 |---|---|
-| **Live app** | [Cloud Run app](https://beat-the-crowd-app-64wo2oghua-ue.a.run.app) — public |
-| **API** | [API docs](https://beat-the-crowd-api-64wo2oghua-ue.a.run.app/docs) — public |
+| **Live app** | [Cloud Run app](https://beat-the-crowd-app-64wo2oghua-ue.a.run.app) — public; corrected release verified |
+| **API** | [API docs](https://beat-the-crowd-api-64wo2oghua-ue.a.run.app/docs) — corrected model live |
 | **Data** | `gs://beat-the-crowd/v1/` (public, see [Data](#data)) |
 
 ---
 
-## What we found
+## Corrected results and a temporal-leakage fix
 
-**Short version: the crowd is hard to beat, but it isn't perfectly calibrated, and a model that knows how it's off does a bit better.** The measured improvement is small and statistically uncertain: the XGBoost confidence intervals include zero. Results vary by period and do not reliably turn into money.
+**The corrected model does not beat the crowd on held-out Brier score.** XGBoost was the better of our two learned candidates on validation, but the raw crowd probability was better than both. This is a result worth reporting: the project demonstrates a reproducible pipeline and a working probability-comparison app, not a profitable betting strategy.
 
-| | Validation (mid-Aug → Oct 2026) | Test (Oct → mid-Nov 2026) |
+During the submission audit, we found a timestamp-unit bug in training. The Parquet data stored timestamps in microseconds, but feature construction divided their integer values by a nanosecond conversion factor. The resulting times fell near 1970, so future prices could enter earlier snapshots. The previous model and its reported metrics are invalid. Reproducing those numbers only reproduced the bug; the earlier tests did not cover this Parquet representation.
+
+Commit `855945b` makes the conversion explicit and adds regression coverage for the affected path. We retrained **both** XGBoost and logistic regression on the same corrected split, then selected the learned model by **validation Brier score**, without using test scores for that selection. The [corrected training record](docs/training-verification.json) contains both runs, full-precision metrics, source revision, data hashes, and model hashes. The corrected release is now deployed. [Fresh public HTTP checks](docs/deployment-verification.json) at 23:11:11 UTC on November 23, 2026 verified its model card, raw prediction, five live-market predictions, and frontend health. The [independent release audit](docs/release-verification.json) confirms artifact/data checksums and matching published/served model cards. [Hosted browser inspection](docs/browser-verification.json) also passed. Earlier evidence from the invalid model remains superseded.
+
+| | Validation | Test (Oct 4–Nov 14, 2026) |
 |---|---|---|
-| **Crowd** (market price) Brier | 0.1347 | 0.0495 |
-| **XGBoost** Brier | 0.1306 | 0.0469 |
-| ↳ skill vs. crowd (95% CI) | **+3.1%** (−3.0% to +9.6%) | **+5.2%** (−3.8% to +16.4%) |
-| ↳ paper-trading ROI | +25% | −2.7% |
-| **Logistic regression** Brier | 0.1323 | 0.0425 |
-| ↳ skill vs. crowd (95% CI) | +1.8% (−5.5% to +10.7%) | +14.1% (+3.7% to +24.2%) |
-| ↳ paper-trading ROI | +18% | +32% |
+| **Crowd** Brier | **0.1678** | **0.1072** |
+| **XGBoost** Brier | 0.1682 | 0.1093 |
+| XGBoost Brier skill vs. crowd (95% CI) | −0.22% (−1.88% to +1.32%) | **−1.97% (−3.72% to −0.51%)** |
+| XGBoost paper-trading ROI | +27.10% | −37.97% |
+| **Logistic regression** Brier | 0.1716 | 0.1159 |
+| Logistic regression Brier skill vs. crowd (95% CI) | −2.26% (−4.57% to −0.28%) | −8.13% (−10.50% to −6.17%) |
+| Logistic regression paper-trading ROI | +6.15% | −35.77% |
 
-Confidence intervals come from a bootstrap that resamples whole *events*, since markets inside one event aren't independent. The test period covers the run-up to the November 3 midterms.
+Lower Brier is better; negative skill means the model has more error than the crowd. XGBoost's test interval is entirely below zero, indicating worse performance in this retrospective test sample. The event bootstrap accounts for related markets within an event, but it does not remove the sampling and metadata limitations described below. Paper-trading ROI ignores fees and slippage and is not a deployable trading strategy.
 
-**1. The crowd is systematically under-confident.** Across all 45,080 snapshots, contracts trading around 58¢ resolved YES 65% of the time, and ones at 85¢ about 91%. Long shots go the other way: 14¢ contracts hit only 11%. This is the classic *favorite-longshot bias* from horse racing, showing up on Polymarket. Our logistic-regression baseline also beats the raw price on the test set, using the same feature pipeline as XGBoost.
+The corrected features produce **44,346 snapshots**, of which **23,135 (52.2%)** have crowd probabilities between 3% and 97%. These contested snapshots cover **7,385 markets** and split into **16,292 training**, **3,229 validation**, and **3,614 test** rows. Filtering changes the events available for splitting, so the old sample counts and period boundaries also no longer apply.
 
-![Crowd calibration](docs/images/longshot_bias.png)
+These figures are generated from the corrected XGBoost run. Calibration across all snapshots is a descriptive dataset diagnostic; test calibration and error by horizon are held-out evaluations. The crowd has lower test Brier at each of the seven evaluated horizons (1, 3, 7, 14, 30, 60, and 90 days). Feature importance describes the fitted model and does not establish causal influence. We withdraw the earlier claims of systematic under-confidence, improvement at every horizon, and a profitable edge.
 
-**2. The model beats the crowd at every horizon on the test set, but only modestly.** XGBoost has lower error from 1 day out to 90 days out. The gap is widest 2–4 weeks before the deadline, which is also where the crowd makes its biggest errors.
+![Crowd calibration across corrected snapshots](docs/images/longshot_bias.png)
 
 <p float="left">
   <img src="docs/images/brier_by_horizon.png" width="49%" />
   <img src="docs/images/calibration.png" width="45%" />
 </p>
 
-**3. We picked the model on validation, not on test, and it mattered.** Logistic regression looks like the star on the test set (+14%), but it was the *worse* model on validation. Late 2026 happened to reward pushing lopsided prices further toward 0 or 1, which suits a simpler model. If we'd chosen by test score we'd be reporting a number that's mostly luck of the period. XGBoost won on validation, so it's what the API serves.
-
-**4. Better probabilities ≠ profit.** Betting $1 whenever the model and crowd disagreed by 5+ points returned +25% on validation and −2.7% on test, before fees. A few large events with dozens of linked markets swing these numbers hard. Anyone hoping this is a money printer: it isn't.
-
-**5. Two mistakes we caught along the way.** Our first run reported an AUC of 0.999 for *both* the model and the crowd, because 80% of snapshots were long shots priced at 0.1¢ that never happen. That's why the contested-markets filter exists. Later, the feature importance chart showed XGBoost leaning on tokens like "february 28" and "june 30", which memorizes which deadlines fell in the training window. We dropped numbers and month names from the text features, and validation skill went *up*. The model now leans on the crowd's price first, then on what kind of question it is (deadline phrasing, topic words like "iran" or "nominee", category).
-
-![Feature importance](docs/images/feature_importance.png)
+![Corrected XGBoost feature importance](docs/images/feature_importance.png)
 
 ## How it works
 
@@ -84,9 +82,9 @@ The cleaned tables live in a public Google Cloud Storage bucket:
 |---|---|
 | [markets.parquet](https://storage.googleapis.com/beat-the-crowd/v1/markets.parquet) | one row per market: question, event, tags, start/end dates, volume, outcome |
 | [prices.parquet](https://storage.googleapis.com/beat-the-crowd/v1/prices.parquet) | one row per market per day: YES price |
-| [model.joblib](https://storage.googleapis.com/beat-the-crowd/v1/model/model.joblib) | the trained pipeline the API serves |
+| [corrected model.joblib](https://storage.googleapis.com/beat-the-crowd/v2-corrected/model/model.joblib) | published corrected XGBoost pipeline |
 
-The companion [model card](https://storage.googleapis.com/beat-the-crowd/v1/model/model_card.json) records training provenance and test metrics. Only load serialized models from a source you trust; this deployment uses our project bucket.
+The companion [corrected model card](https://storage.googleapis.com/beat-the-crowd/v2-corrected/model/model_card.json) records the matching release provenance and corrected test metrics. The raw data remains under `v1`; the former `v1/model/` artifacts must not be used for corrected inference or evaluation. Only load serialized models from a source you trust; this deployment uses our project bucket.
 
 Because the bucket is public, `python -m src.data.storage download` (and the training script) can fetch the data without a Google Cloud account.
 
@@ -101,17 +99,17 @@ Features (all in `src/features/build.py`):
 - **Time:** days until the scheduled end, market age, fraction of its life elapsed
 - **Structure:** how many markets share the event (one candidate out of 20 vs. a standalone question), whether it's part of a mutually exclusive set
 - **The question itself:** TF-IDF on the words (numbers and month names stripped, see below), plus flags for deadline language ("by", "before"), price thresholds ("above $X"), and head-to-heads
-- **Category:** Polymarket's tags collapsed into ten buckets (politics, crypto, sports, geopolitics, ...)
+- **Category:** Polymarket's tags collapsed into nine buckets (politics, crypto, sports, geopolitics, ...)
 
-**One filter matters a lot.** About 80% of snapshots are long shots priced under 3¢ or near-certainties above 97¢. Both the crowd and any model get those right, so including them makes every metric look amazing and hides what's interesting. We train and evaluate only on **contested snapshots, where the crowd's price is between 3% and 97%**. The API still scores markets outside that range, but attaches a warning.
+We train and evaluate only on **contested snapshots, where the crowd's price is between 3% and 97%**. In the corrected data, this retains 23,135 of 44,346 snapshots (52.2%). The API can still score markets outside that range, but attaches a warning because those probabilities are outside the training filter. The former claim that roughly 80% were near-certain was based on the flawed timestamp conversion and is withdrawn.
 
 ### Splitting without fooling ourselves
 
-A random row split would leak in two ways. Several snapshots come from the same market, and markets inside one event are tied together (if "Will X win?" resolves YES, "Will Y win?" resolves NO). So we split by **event**, and we order events by end date: the oldest 70% train, the next 15% validate (used for early stopping), and the most recent 15% test. The test set is the future, which is the question that actually matters.
+A random row split would leak in two ways. Several snapshots come from the same market, and markets inside one event are tied together (if "Will X win?" resolves YES, "Will Y win?" resolves NO). So we split by **event**, and we order events by end date: the oldest 70% train, the next 15% validate (used for early stopping), and the most recent 15% test. This orders events by their deadlines; forecast windows can overlap across splits, as discussed under limitations.
 
 ### Model
 
-A scikit-learn `Pipeline`: a `ColumnTransformer` (scaled numerics, one-hot category, TF-IDF question text) feeding an **XGBoost** classifier with early stopping on the validation set. Logistic regression is available as a baseline (`--model-type logistic_regression`). All hyperparameters live in `config.yaml`.
+A scikit-learn `Pipeline`: a `ColumnTransformer` (scaled numerics, one-hot category, TF-IDF question text) feeding an **XGBoost** classifier with early stopping on the validation set. XGBoost was selected over logistic regression by corrected validation Brier, although both performed worse than the crowd baseline. Logistic regression is also runnable with `--model-type logistic_regression`. All hyperparameters live in `config.yaml`.
 
 We score everything twice, once for the model and once for the crowd (the raw market price):
 
@@ -124,7 +122,11 @@ We score everything twice, once for the model and once for the crowd (the raw ma
 
 Every training run is logged to **MLflow**: ingestion, feature, split, and model settings as params, the git commit and a hash of the config as tags, train/val/test metrics for model and crowd, plots (calibration, long-shot bias, error by horizon, feature importance), and the fitted model.
 
-![An MLflow run](docs/images/mlflow_run.png)
+The corrected **local comparison runs** are `a7c90470a1404d08a710ab7ff9dc1f9d` (XGBoost) and `4b816fdd48dd4b839d032acd246b93fd` (logistic regression), both `FINISHED`. Their metrics and artifact inventories are in the [training record](docs/training-verification.json). Publication retrains the selected model in Docker from a clean committed release revision, so the cloud release has its own source commit, run ID, timestamp, and artifact hashes. Its manifest and served model card must agree; the local comparison identifiers are not prescribed cloud-release identifiers. The deployed Docker release was trained at **23:07:08 UTC on November 23, 2026**, from commit `7470d972efa47bfecbb7bf45dd0ebb6fefcca7d4`, with MLflow run `06ce2592fc0345669447c8a67246f443` and config hash `06593fd4bb`. Its corrected counts and test metrics match the local comparison at the reported precision.
+
+![MLflow metrics for the corrected local XGBoost comparison run](docs/images/mlflow-corrected.jpg)
+
+Actual MLflow capture of the corrected local XGBoost run; it is experiment evidence, not proof of cloud deployment.
 
 ---
 
@@ -147,11 +149,12 @@ pip install -r requirements.txt
 
 ```bash
 python -m src.models.train                                  # XGBoost, settings from config.yaml
-python -m src.models.train --model-type logistic_regression # baseline
 mlflow ui --backend-store-uri sqlite:///mlflow.db           # browse runs at http://localhost:5000
 ```
 
-Training downloads the cleaned data from the public bucket on first run, then writes `models/model.joblib`, `models/model_card.json` and the plots in `reports/`. To rebuild the dataset from scratch instead (takes about 20 minutes):
+To run the optional logistic-regression baseline, use `--model-type logistic_regression` with a separate `--config` file whose `output.model_dir` and `output.reports_dir` point to baseline directories. Otherwise it overwrites the selected XGBoost artifacts. Publish only the model/card pair chosen by validation.
+
+Training downloads the cleaned data from the public bucket on first run, then writes `models/v2-corrected/model.joblib`, `models/v2-corrected/model_card.json` and the plots in `reports/`. To rebuild the dataset from scratch instead (takes about 20 minutes):
 
 ```bash
 python -m src.data.ingest
@@ -213,9 +216,11 @@ Open the local URL printed by Streamlit (normally `http://localhost:8501`). For 
 
 The displayed edge is a difference between two probability estimates, not an expected investment return. The dashed line on the chart is today's model estimate, not a historical backtest of the model.
 
-![Live market comparison in the public Cloud Run app](docs/images/app-live.jpg)
+The corrected hosted app passed [browser inspection](docs/browser-verification.json): trending selection, five prediction cards and charts, model metrics and warnings, invalid-link handling, and a 390-pixel mobile layout. These captures show the corrected release.
 
-The hosted interface uses live Polymarket data through the deployed HTTP API. Browser inspection is recorded separately in [browser verification](docs/browser-verification.json), with a [mobile capture](docs/images/app-live-mobile.jpg). The [public HTTP report](docs/deployment-verification.json) verifies API predictions and frontend reachability.
+![Corrected hosted app comparing crowd and model probabilities](docs/images/app-live.jpg)
+
+[Model information](docs/images/app-live-model.jpg) · [Mobile view](docs/images/app-live-mobile.jpg)
 
 ### Docker
 
@@ -230,7 +235,7 @@ docker run --entrypoint pytest beat-the-crowd -q        # tests
 
 The frontend has its own lightweight `Dockerfile.frontend`; see the [deployment guide](docs/deployment.md).
 
-If `models/model.joblib` exists when you build, it's baked into the image. Otherwise the API downloads it from the bucket on startup.
+If `models/v2-corrected/model.joblib` exists when you build, it is baked into the image. Otherwise the API downloads the configured corrected artifact on startup. The versioned local path prevents reuse of the former `models/model.joblib` cache; always check `/model` against the intended corrected run.
 
 ### Tests
 
@@ -239,26 +244,26 @@ pip install -r frontend/requirements.txt  # also needed for frontend interaction
 pytest -q
 ```
 
-The automated suite uses synthetic data and mocked upstream responses, so it needs no network access. It checks that features **never see prices after the snapshot time**, **no event appears in more than one split**, the frontend renders predictions and handles failures, and smoke checks reject invalid deployment evidence. CI runs these tests, builds both images, runs the backend tests inside Docker, and makes a real HTTP prediction with the published model. It runs on feature branches, pull requests, and `main`.
+The automated suite uses synthetic data and mocked upstream responses, so it needs no network access. It checks that features **never see prices after the snapshot time**, **no event appears in more than one split**, the frontend renders predictions and handles failures, and smoke checks reject invalid deployment evidence. CI runs these tests, builds both images, runs the backend tests inside Docker, trains a fresh corrected model inside the backend image, and mounts that model into an API container for a real HTTP prediction. This container check uses the newly trained model and does not depend on the corrected artifact already being published. It runs on feature branches, pull requests, and `main`.
 
-On November 23, 2026, all **90 tests passed** locally. [Implementation CI at `70595a6`](https://github.com/hmccormack1/beat-the-crowd/actions/runs/45265056619) passed the automated suite, both container builds, backend container tests, a real-model HTTP prediction, and frontend startup. Subsequent documentation-only commits are checked in [PR #5](https://github.com/hmccormack1/beat-the-crowd/pull/5). A complete XGBoost run from the public cloud data reproduced every reported test metric exactly, with the effective config, model, and reports saved in MLflow; see [training evidence](docs/training-verification.json).
+The earlier 90-test suite and [pre-correction CI](https://github.com/hmccormack1/beat-the-crowd/actions/runs/45278554700) passed but did not catch the microsecond/nanosecond mismatch. The expanded local suite now passes **113 tests in 18.18 seconds**, including timestamp regression and corrected-release helper tests. [Corrected CI at `7470d97`](https://github.com/hmccormack1/beat-the-crowd/actions/runs/45283570027) completed successfully at **22:55:25 UTC on November 23, 2026**. Both jobs passed, including fresh model training inside Docker and HTTP inference using that resulting model; [job and step evidence](docs/ci-verification.json) records the checked revision. The corrected public deployment also passed the separate HTTP checks below.
 
-At **22:06 UTC on November 23, 2026**, unauthenticated requests to the public Cloud Run services passed `/health`, `/model`, raw `/predict`, a live `/predict/market` request returning five scored markets, and frontend HTML/health checks. See the [public HTTP verification report](docs/deployment-verification.json). Browser interaction is documented separately above; these checks record behavior at verification time, not a guarantee of future availability.
+Both corrected training runs completed from the unchanged public data; see [training evidence](docs/training-verification.json). [Corrected local HTTP checks](docs/local-verification.json) passed at 22:37 UTC on November 23, 2026, covering the model card, raw prediction, live-market prediction, and frontend health. Local browser inspection also confirmed five corrected prediction cards, charts, warnings, and model metrics. The [corrected public HTTP report](docs/deployment-verification.json) passed at **23:11:11 UTC**, identifying release `7470d97` and scoring five current Fed-event markets. The [independent release audit](docs/release-verification.json) passed at **23:12:57 UTC**, checking the published model/config/card and data hashes, source ancestry, and exact agreement of published and served cards. The [hosted browser record](docs/browser-verification.json) passed at **23:14:03 UTC** with corrected desktop/mobile screenshots. Historical HTTP 200 responses and UI screenshots from the invalid model remain superseded.
 
 ### Deploy to the cloud
 
-Use the [deployment guide](docs/deployment.md) for the reproducible Cloud Run API deployment, frontend hosting, HTTP smoke checks, and troubleshooting. `scripts/deploy_cloud_run.sh` deploys the API to the existing project using the repository Dockerfile. `scripts/smoke_test.py` verifies the running service independently of the browser.
+Use the [deployment guide](docs/deployment.md) and [corrected-release helper](scripts/publish_corrected_model.sh) to train, publish, and deploy the selected model from a clean committed checkout. The helper checks public artifact hashes and deployed model identity; it does not reuse a host's existing model file. `scripts/deploy_cloud_run.sh` supplies the underlying Cloud Run deployment commands, and `scripts/smoke_test.py` checks HTTP behavior.
 
 ### Cloud services
 
 | Service | Role |
 |---|---|
-| Google Cloud Storage | Public cleaned data and trained model artifacts in `gs://beat-the-crowd/v1/` |
+| Google Cloud Storage | Cleaned data in `gs://beat-the-crowd/v1/`; corrected model destination `gs://beat-the-crowd/v2-corrected/model/` |
 | Cloud Run | FastAPI and Streamlit services, each with minimum instances 0 and maximum instances 2 |
 | Cloud Build / Cloud Shell Docker | Remote-build workflow or local image build in Cloud Shell; the current deployment used Cloud Shell Docker |
 | Artifact Registry | Stores the container image used by Cloud Run |
 | Streamlit Community Cloud | Documented alternative frontend host; current frontend is on Cloud Run |
-| GitHub Actions | Runs automated tests and both container builds on feature branches, pull requests, and `main` |
+| GitHub Actions | Runs automated tests, both image builds, fresh model training in Docker, and container HTTP checks on feature branches, pull requests, and `main` |
 | MLflow (local SQLite) | Tracks training parameters, metrics, model artifacts, and plots; it is not a hosted cloud service |
 
 See the [requirement-to-evidence checklist](docs/requirements-checklist.md) for the implementation, deployment, and collaboration evidence.
@@ -268,7 +273,7 @@ See the [requirement-to-evidence checklist](docs/requirements-checklist.md) for 
 ## Project structure
 
 ```
-├── config.yaml              every tunable setting: data filters, features, split, model, tracking
+├── config.yaml              pipeline settings: data filters, features, split, model, tracking
 ├── Dockerfile               one image for ingest / train / serve
 ├── requirements.txt
 ├── src/
@@ -297,7 +302,7 @@ See the [requirement-to-evidence checklist](docs/requirements-checklist.md) for 
 
 ## Limitations and ethics
 
-**A small probability difference is not a trading recommendation.** The served model's test Brier skill is +5.2%, but its 95% event-bootstrap interval runs from -3.8% to +16.4%. The test paper-trading return is negative (-2.7%) before fees and slippage. We show both baselines, uncertainty, out-of-distribution warnings, and a visible disclaimer. Labels such as "YES looks underpriced" can still encourage gambling, so the app places no bets and does not connect to a wallet.
+**A model disagreement is not a trading recommendation.** The corrected XGBoost model's test Brier skill is -1.97%, with a 95% event-bootstrap interval of -3.72% to -0.51%: it performs worse than the crowd on this test sample. Its test paper-trading return is -37.97% before fees and slippage. We show both baselines, uncertainty, out-of-distribution warnings, and a visible disclaimer. Labels such as "YES looks underpriced" can still encourage gambling, so the app places no bets and does not connect to a wallet.
 
 **The sample is narrow and changes over time.** This is one platform, covering July 2025 through mid-November 2026, mostly 2026. We select resolved binary markets with at least $25,000 in eventual volume and at least seven days' duration, exclude individual sports games and recurring/up-down markets, and train only on contested snapshots (3%-97% crowd probability). Results do not establish performance for other platforms, low-liquidity markets, or the market mix that appears tomorrow. Serving warnings identify some of these mismatches, but cannot detect every kind of distribution shift.
 
@@ -311,7 +316,7 @@ See the [requirement-to-evidence checklist](docs/requirements-checklist.md) for 
 
 ## Collaboration and reproducibility
 
-Hadley's pipeline, API, and documentation were delivered through PRs #1-#4. Konur's second-half changes are in [PR #5](https://github.com/hmccormack1/beat-the-crowd/pull/5), submitted from his own account, on `feature/complete-deployment-frontend` with focused commits. The [CI history](https://github.com/hmccormack1/beat-the-crowd/actions) records the automated tests and both container checks. The public deployment links and verification reports are listed above.
+Hadley's pipeline, API, and documentation were delivered through PRs #1-#4. Konur's second-half changes are in [PR #5](https://github.com/hmccormack1/beat-the-crowd/pull/5), submitted from his own account, on `feature/complete-deployment-frontend` with focused commits. The [CI history](https://github.com/hmccormack1/beat-the-crowd/actions) records the automated tests and both container checks. The timestamp correction follows on `feature/fix-snapshot-time-units`; corrected CI passed at `7470d97`, and release `7470d97` is publicly deployed. Corrected public HTTP, artifact integrity, and hosted browser checks are complete; correction PR review/merge remains pending.
 
 We keep data, fitted models, local MLflow databases, virtual environments, and secrets out of Git. Training downloads the versioned public data, records the code revision and configuration hash, and saves evaluation artifacts. Re-ingesting the live platform can produce a different dataset; use the hosted `v1` data for comparison with the reported experiment.
 

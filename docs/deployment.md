@@ -4,12 +4,33 @@ Deploy the model API before the frontend. Both deployments use the same source r
 
 ## Deployment status
 
-Both services are publicly accessible. Unauthenticated checks passed at **2026-11-23 22:06 UTC**: API health and model metadata, raw JSON prediction, a live event returning five scored markets, and frontend HTML/health. The [public smoke report](deployment-verification.json) records the requests and results. Browser interaction is recorded separately in [browser verification](browser-verification.json).
+**The corrected release is publicly deployed.** Fresh unauthenticated HTTP checks passed at **2026-11-23 23:11:11 UTC**: API health/model metadata, raw JSON prediction, a live Fed event returning five scored markets, and frontend HTML/health. The [public smoke report](deployment-verification.json) records the actual requests and results. The [independent release audit](release-verification.json) passed at **23:12:57 UTC**, and [hosted browser inspection](browser-verification.json) passed at **23:14:03 UTC**, including predictions, charts, warnings, model metrics, invalid-link handling, and mobile layout.
 
 - [Public frontend](https://beat-the-crowd-app-64wo2oghua-ue.a.run.app)
 - [Public API documentation](https://beat-the-crowd-api-64wo2oghua-ue.a.run.app/docs)
 
-The deployed images were built with Docker in Cloud Shell and stored in Artifact Registry. The source-build alternative below remains available when its service account has the required permissions. Verification records the service behavior at that time; rerun the smoke checks after changing a deployment.
+The served model card identifies source commit `7470d972efa47bfecbb7bf45dd0ebb6fefcca7d4`, training time `2026-11-23T23:07:08+00:00`, MLflow run `06ce2592fc0345669447c8a67246f443`, and config hash `06593fd4bb`. This Docker release is distinct from the earlier corrected local comparison runs. It reports 7,385 markets, 23,135 snapshots, and test Brier 0.1093 against the crowd's 0.1072, matching the corrected evaluation.
+
+The model/card/effective-config files are published under `gs://beat-the-crowd/v2-corrected/model/`; raw data remains `v1`. The [release manifest](release-manifest.json) and [independent release verification](release-verification.json) record verified artifact/data checksums, correction ancestry, and exact agreement between published and served model cards. The integrity audit hashes the model bytes; it does not recompute evaluation metrics. Pre-correction reports are superseded and do not validate this release. Correction review/merge remains pending.
+
+## Publish the corrected model
+
+The configuration keeps raw data in `storage.prefix: v1`, uses `storage.model_prefix: v2-corrected` for model uploads, and loads `models/v2-corrected/model.joblib` locally. This separate local path prevents the former model cache from being reused.
+
+Use the [corrected-release helper](../scripts/publish_corrected_model.sh) from a clean, committed checkout containing timestamp fix `855945b`. Cloud Shell supplies the required tools; only Python's standard library is needed on the host, while Docker supplies the pinned ML dependencies. The authenticated account needs the existing bucket-write, registry, and Cloud Run permissions.
+
+```bash
+ARTIFACT_REPOSITORY=cloud-run-source-deploy \
+  bash scripts/publish_corrected_model.sh
+```
+
+The helper archives the committed source, builds it in Docker, trains the selected XGBoost model afresh, validates its card and a prediction, and publishes a new model/card/effective-config release. It verifies public checksums before publishing `manifest.json`, then deploys both services from that source and checks that `/model` equals the published card. It also runs public raw-prediction and frontend health checks. Release files and MLflow outputs are retained in the printed `tmp/corrected-release-...` directory.
+
+The cloud training run has its own **full release commit**, MLflow run ID, training time, config hash, and model hash. Do not require them to equal the local comparison run's `855945b` / `a7c90470a1404d08a710ab7ff9dc1f9d` identifiers. Verify instead that the release commit contains the fix, its published artifacts match [the release manifest](https://storage.googleapis.com/beat-the-crowd/v2-corrected/model/manifest.json), and the published and served model cards match exactly. Confirm the corrected result: 7,385 markets, 23,135 snapshots, test period October 4–November 14, 2026, and XGBoost/crowd test Brier 0.1093/0.1072. The local [training record](training-verification.json) preserves the comparison evidence separately.
+
+The helper refuses existing or partial releases rather than overwriting them. An identical complete release can be verified and redeployed from its exact `source_commit`; use `--deploy-only` for that path. `--publish-only` stops after publication/verification. If the source or model destination changes, commit a new versioned destination for a new release. Do not bypass these checks by manually publishing an old cached model. The old `v1/model/` artifacts are invalid and must never be a fallback.
+
+The deployment sections below describe the underlying service commands. Use the release helper for the corrected replacement so publication, model identity, and deployment remain connected.
 
 ## Prerequisites
 
@@ -37,7 +58,7 @@ PROJECT_ID=your-project REGION=us-east1 API_SERVICE=beat-the-crowd-api \
   bash scripts/deploy_cloud_run.sh api
 ```
 
-The trained model is outside Git. At startup, the API loads local artifacts when available or downloads the configured public artifacts. The `/model` response must contain the matching model card, not an empty object. First requests after an idle period may take longer while the container starts.
+The trained model is outside Git. At startup, the API loads the versioned corrected local artifact when available or downloads `v2-corrected/model/model.joblib` and its companion card from the public bucket. The `/model` response must contain the matching model card, not an empty object. First requests after an idle period may take longer while the container starts.
 
 Discover the actual URL rather than guessing it:
 
@@ -111,7 +132,7 @@ python scripts/smoke_test.py --api-url "$API_URL" \
   --output docs/deployment-verification.json
 ```
 
-This validates the loaded model, model metadata, and a deterministic JSON request to `/predict`. The frontend HTTP check verifies reachability; a browser check below is still necessary to exercise user interactions. Include a live event test with a currently open link:
+This validates serving behavior, model metadata, and a deterministic JSON request to `/predict`. A successful HTTP request can still serve an old model: require the served card to match the **published release card**, whose full `git_commit` agrees with `manifest.json`'s `source_commit`. Verify release checksums and the corrected counts/metrics listed above. The release run ID and hashes can differ from the local comparison record because the helper retrains in Docker. The frontend HTTP check verifies reachability; a browser check below is still necessary to exercise user interactions. Include a live event test with a currently open link:
 
 ```bash
 python scripts/smoke_test.py --api-url "$API_URL" \
@@ -124,9 +145,9 @@ The example event may eventually close. If it does, choose an open event from `/
 
 ## Browser verification and submission
 
-Open the public frontend in a signed-out browser. Score an open event, verify that both probability values and the percentage-point difference appear, expand model information, and check warnings and the chart. Try an invalid link and ensure the error is readable. Check at a narrow/mobile width. Record the result in `docs/browser-verification.json` and save hosted screenshots to `docs/images/app-live.jpg` and `docs/images/app-live-mobile.jpg`. The README embeds the desktop capture.
+Open the public frontend in a signed-out browser. Score an open event, verify that both probability values and the percentage-point difference appear, expand model information, and check warnings and the chart. Try an invalid link and ensure the error is readable. Check at a narrow/mobile width. Record the result in `docs/browser-verification.json` and save hosted screenshots to `docs/images/app-live.jpg` and `docs/images/app-live-mobile.jpg`. The recorded corrected-release inspection passed these checks on November 23, 2026; [browser evidence](browser-verification.json) links the refreshed desktop, model-information, and mobile captures. Repeat this inspection after future changes.
 
-The README links both deployed services and the public smoke evidence. Konur's [PR #5](https://github.com/hmccormack1/beat-the-crowd/pull/5) contains the second-half implementation. [CI at implementation revision `70595a6`](https://github.com/hmccormack1/beat-the-crowd/actions/runs/45265056619) passed; check PR #5 for the status of later documentation commits. Each team member's PR is linked in the submission checklist.
+Konur's merged [PR #5](https://github.com/hmccormack1/beat-the-crowd/pull/5) contains the original second-half implementation. The timestamp correction is on `feature/fix-snapshot-time-units`. The expanded local suite passed 113 tests. [Corrected CI at `7470d97`](https://github.com/hmccormack1/beat-the-crowd/actions/runs/45283570027) completed at **2026-11-23 22:55:25 UTC**, with both jobs passing, including fresh Docker training and serving the resulting model for HTTP checks. [CI evidence](ci-verification.json) lists every job and step. Corrected public HTTP, hosted browser, and independent artifact-integrity checks passed for that release. Correction PR review/merge remains pending. Pre-correction CI missed the timestamp-unit error and is historical evidence only.
 
 ## Troubleshooting
 
@@ -146,7 +167,7 @@ This needs `run.services.setIamPolicy`, but no image rebuild or project-wide rol
 
 ### Other failures
 
-- **Missing model or model card:** check the public bucket URLs in `config.yaml` and the [model card](https://storage.googleapis.com/beat-the-crowd/v1/model/model_card.json). Publish matching artifacts from the same training run, then deploy a new API revision. Never hand-edit metrics to fill a missing response.
+- **Missing model or model card:** check the public bucket URLs in `config.yaml` and the [model card](https://storage.googleapis.com/beat-the-crowd/v2-corrected/model/model_card.json). Publish matching artifacts from the same training run, then deploy a new API revision. Never hand-edit metrics to fill a missing response.
 - **Build or service-account permission failure:** use the exact failing permission to request a targeted fix from the project owner. Source-build IAM requirements are documented by Google; the script does not grant roles.
 - **First request times out:** inspect Cloud Run revision logs and confirm startup completed. Retry after the cold start; the app uses a 60-second client timeout.
 - **Polymarket returns an error:** `/predict/market` and trending require upstream connectivity. Confirm `/health` and raw `/predict` separately to distinguish serving failure from an upstream outage.

@@ -1,6 +1,6 @@
 # Beat the Crowd: pipeline configuration
-# Every knob that changes the data, the features, or the model lives here,
-# so a run can be reproduced from this file + the git commit alone.
+# Main data, feature, split, and model settings live here. Reproduction also
+# depends on the versioned input data, dependencies, and source revision.
 
 project:
   name: beat-the-crowd
@@ -36,6 +36,7 @@ ingest:
 storage:
   bucket: beat-the-crowd          # public, read-only for everyone
   prefix: v1
+  model_prefix: v2-corrected     # corrected timestamp features; v1/model is superseded
   public_read: true               # objects are world-readable, so training needs no credentials
   files:
     markets: markets.parquet
@@ -51,8 +52,8 @@ features:
   # ask: given only what was known at that moment, will it resolve YES?
   snapshot_horizons_days: [1, 3, 7, 14, 30, 60, 90]
   min_history_days: 3
-  # Only model snapshots where the crowd is genuinely unsure. ~80% of snapshots
-  # are long shots at <3% or near-locks at >97%, which are trivially "right".
+  # Focus on contested snapshots. Near-certain prices outside this interval
+  # can dominate aggregate accuracy and obscure probability calibration.
   min_crowd_p: 0.03
   max_crowd_p: 0.97
   text_max_features: 300
@@ -96,11 +97,11 @@ mlflow:
 # 7. Outputs + serving
 # ---------------------------------------------------------------------------
 output:
-  model_dir: models
+  model_dir: models/v2-corrected
   reports_dir: reports
 
 serving:
-  model_path: models/model.joblib
+  model_path: models/v2-corrected/model.joblib
   # Fallback if the model isn't baked into the image: public GCS URL
-  model_url: https://storage.googleapis.com/beat-the-crowd/v1/model/model.joblib
+  model_url: https://storage.googleapis.com/beat-the-crowd/v2-corrected/model/model.joblib
   edge_threshold: 0.05      # |model - crowd| above this gets flagged in the response

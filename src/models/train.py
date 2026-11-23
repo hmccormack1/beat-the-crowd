@@ -15,6 +15,7 @@ import argparse
 import hashlib
 import json
 import logging
+import os
 import subprocess
 from datetime import datetime, timezone
 
@@ -45,6 +46,10 @@ def _flatten(d: dict, prefix: str = "") -> dict:
 
 
 def _git_commit() -> str:
+    # Container training has no .git directory; deployment supplies the exact
+    # checked-out revision explicitly so the published card retains provenance.
+    if commit := os.environ.get("BTC_SOURCE_COMMIT"):
+        return commit
     try:
         return subprocess.check_output(["git", "rev-parse", "--short", "HEAD"],
                                        stderr=subprocess.DEVNULL, text=True).strip()

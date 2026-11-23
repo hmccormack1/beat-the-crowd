@@ -79,7 +79,7 @@ def app_fixture(monkeypatch):
     import streamlit as st
     st.cache_data.clear()
     monkeypatch.setenv("API_URL", "https://api.example.test")
-    state = {"fail": False, "posts": []}
+    state = {"fail": False, "posts": [], "negative_skill": False}
     def request(method, url, **kwargs):
         if url.endswith("/markets/trending"):
             return Response([{"title": "Example event", "slug": "example-event",
@@ -91,8 +91,9 @@ def app_fixture(monkeypatch):
                 "n_markets": 2562, "n_snapshots": 9903,
                 "metrics": {
                     "test_model_brier": .0469, "test_crowd_brier": .0495,
-                    "test_brier_skill_vs_crowd": .0518,
-                    "test_brier_skill_ci_low": -.0379, "test_brier_skill_ci_high": .1644,
+                    "test_brier_skill_vs_crowd": -.0197 if state["negative_skill"] else .0518,
+                    "test_brier_skill_ci_low": -.0379,
+                    "test_brier_skill_ci_high": -.0051 if state["negative_skill"] else .1644,
                     "test_trade_roi": -.0269,
                 },
             })
@@ -145,6 +146,15 @@ def test_trending_selection_fills_input_and_failure_clears_old_result(app_fixtur
     assert not app.exception
     assert any("open Yes/No" in error.value for error in app.error)
     assert not any(metric.value == "55.0%" for metric in app.metric)
+
+
+def test_app_explains_when_model_is_worse_than_crowd(app_fixture):
+    app, state = app_fixture
+    state["negative_skill"] = True
+    app.run(timeout=15)
+    assert not app.exception
+    assert any("performed worse than the crowd" in warning.value for warning in app.warning)
+    assert not any("includes zero" in warning.value for warning in app.warning)
 
 
 @pytest.mark.parametrize("base_url", [

@@ -144,7 +144,9 @@ def build_training_set(markets: pd.DataFrame, prices: pd.DataFrame, cfg: dict) -
         g = grouped.get(m.market_id)
         if g is None:
             continue
-        ts = g["ts"].astype("int64").to_numpy() / 1e9
+        # pandas preserves timestamp units (s/ms/us/ns); integer values are not
+        # necessarily nanoseconds. Normalize before converting to Unix seconds.
+        ts = g["ts"].dt.as_unit("ns").astype("int64").to_numpy() / 1e9
         p = g["price"].to_numpy(dtype=float)
         start, end = m.start_date.timestamp(), m.end_date.timestamp()
         closed = m.closed_time.timestamp() if pd.notna(m.closed_time) else math.inf

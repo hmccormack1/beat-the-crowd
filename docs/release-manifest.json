@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "source_commit": "7470d972efa47bfecbb7bf45dd0ebb6fefcca7d4",
+  "source_config_sha256": "bfb5e3a1f082c5cde3f6c8b22769a10986b6b2f09a318f822ded7b8b32bfb969",
+  "training_started_at": "2026-11-23T23:06:37+00:00",
+  "trained_at": "2026-11-23T23:07:08+00:00",
+  "training_image_id": "sha256:33dcab756741a63c9061dec4d2360657e776c9674b7930c2be4de10f653aab76",
+  "model_type": "xgboost",
+  "data": {
+    "markets": {
+      "url": "https://storage.googleapis.com/beat-the-crowd/v1/markets.parquet",
+      "sha256": "9510738828727b1270c47372792463fb7bb19463aa2107633eb5e045acea03b5"
+    },
+    "prices": {
+      "url": "https://storage.googleapis.com/beat-the-crowd/v1/prices.parquet",
+      "sha256": "a6b8fd7dcc45a4031ebbafe9f3d09d4ac02b33bfed5b7bdecfbf74871a7d9dde"
+    }
+  },
+  "artifacts": {
+    "model.joblib": {
+      "sha256": "72598a80307da146732b41d65a404bb03beed675dd841e4cde5794d2dbbb1005",
+      "bytes": 169536
+    },
+    "model_card.json": {
+      "sha256": "ea050aa64e57b0641089bd5f12f68f597cc501b2655ec2c427c4c792a2bb659a",
+      "bytes": 1466
+    },
+    "effective_config.json": {
+      "sha256": "86122dfa0712460481608aeb38bb3537bb3b19662148525d787a054265ba40a8",
+      "bytes": 2025
+    }
+  }
+}

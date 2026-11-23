@@ -1,4 +1,6 @@
 import numpy as np
+import pandas as pd
+import pytest
 
 from src.features.build import ALL_FEATURES, build_training_set, categorize, snapshot_features
 
@@ -53,3 +55,46 @@ def test_training_set_skips_snapshots_after_resolution(cfg, synthetic_markets):
     first = df[df["market_id"] == markets.loc[0, "market_id"]]
     assert set(first["horizon_days"]) == {7, 14, 30}
     assert df["target"].isin([0, 1]).all()
+
+
+@pytest.mark.parametrize("unit", ["s", "ms", "us", "ns"])
+def test_training_snapshots_preserve_time_units_and_match_serving(cfg, unit):
+    """Cloud Parquet timestamps must exclude the future just like live inputs."""
+    cfg["features"]["snapshot_horizons_days"] = [7]
+    start = pd.Timestamp("2026-01-01", tz="UTC")
+    end = pd.Timestamp("2026-01-12", tz="UTC")
+    as_of = end - pd.Timedelta(days=7)
+    dates = pd.to_datetime([
+        "2026-01-01", "2026-01-02", "2026-01-05",
+        "2026-01-06", "2026-01-12",
+    ], utc=True)
+    prices = pd.DataFrame({
+        "market_id": ["example"] * len(dates),
+        "ts": pd.Series(dates).dt.as_unit(unit),
+        "price": [.2, .3, .4, .9, .999],
+    })
+    markets = pd.DataFrame([{
+        "market_id": "example", "event_id": "event",
+        "question": "Will the Fed cut rates by January 12?",
+        "start_date": start, "end_date": end, "closed_time": end,
+        "tags": ["Fed"], "event_n_markets": 1, "neg_risk": False,
+        "resolved_yes": 1,
+    }])
+
+    row = build_training_set(markets, prices, cfg).iloc[0]
+    assert row["crowd_p"] == .4
+    assert row["n_price_points"] == 3
+
+    # Serving receives true Unix seconds directly, without a pandas dtype.
+    live_features = snapshot_features(
+        np.array([date.timestamp() for date in dates]),
+        prices["price"].to_numpy(), as_of.timestamp(), start.timestamp(),
+        end.timestamp(), markets.iloc[0]["question"], ["Fed"], 1, False,
+    )
+    assert row[ALL_FEATURES].to_dict() == live_features
+
+    # Changing resolved/future prices cannot change any historical feature.
+    tampered = prices.copy()
+    tampered.loc[tampered["ts"] > as_of, "price"] = .01
+    rebuilt = build_training_set(markets, tampered, cfg).iloc[0]
+    assert row[ALL_FEATURES].to_dict() == rebuilt[ALL_FEATURES].to_dict()

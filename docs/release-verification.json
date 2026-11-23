@@ -1,0 +1,87 @@
+{
+  "verified_at": "2026-11-23T23:12:57+00:00",
+  "status": "passed",
+  "scope": "Independent public-byte checksums and source/metadata comparisons. The remote joblib was hashed only, never deserialized or executed; model metrics were compared with the corrected local training evidence, not recomputed in this check.",
+  "authentication": "none; HTTP sessions disabled environment credential lookup",
+  "manifest_url": "https://storage.googleapis.com/beat-the-crowd/v2-corrected/model/manifest.json",
+  "manifest_sha256": "291dcd632ec9648fcb82eb2680629ce119555d3b492b151fecaf6552cb37d90d",
+  "source": {
+    "release_commit": "7470d972efa47bfecbb7bf45dd0ebb6fefcca7d4",
+    "timestamp_fix_commit": "855945b1ed1a5050a53dfb176eb3fd0ba125c726",
+    "timestamp_fix_is_ancestor": true,
+    "source_config_sha256": "bfb5e3a1f082c5cde3f6c8b22769a10986b6b2f09a318f822ded7b8b32bfb969",
+    "source_config_matches_manifest": true,
+    "effective_config_matches_committed_config_with_isolated_output_paths": true,
+    "effective_config_hash_matches_model_card": true
+  },
+  "artifacts": {
+    "effective_config.json": {
+      "url": "https://storage.googleapis.com/beat-the-crowd/v2-corrected/model/effective_config.json",
+      "sha256": "86122dfa0712460481608aeb38bb3537bb3b19662148525d787a054265ba40a8",
+      "bytes": 2025,
+      "matches_manifest": true
+    },
+    "model.joblib": {
+      "url": "https://storage.googleapis.com/beat-the-crowd/v2-corrected/model/model.joblib",
+      "sha256": "72598a80307da146732b41d65a404bb03beed675dd841e4cde5794d2dbbb1005",
+      "bytes": 169536,
+      "matches_manifest": true
+    },
+    "model_card.json": {
+      "url": "https://storage.googleapis.com/beat-the-crowd/v2-corrected/model/model_card.json",
+      "sha256": "ea050aa64e57b0641089bd5f12f68f597cc501b2655ec2c427c4c792a2bb659a",
+      "bytes": 1466,
+      "matches_manifest": true
+    }
+  },
+  "data": {
+    "markets": {
+      "url": "https://storage.googleapis.com/beat-the-crowd/v1/markets.parquet",
+      "sha256": "9510738828727b1270c47372792463fb7bb19463aa2107633eb5e045acea03b5",
+      "bytes": 1092099,
+      "matches_manifest": true
+    },
+    "prices": {
+      "url": "https://storage.googleapis.com/beat-the-crowd/v1/prices.parquet",
+      "sha256": "a6b8fd7dcc45a4031ebbafe9f3d09d4ac02b33bfed5b7bdecfbf74871a7d9dde",
+      "bytes": 2608517,
+      "matches_manifest": true
+    }
+  },
+  "published_model": {
+    "model_type": "xgboost",
+    "git_commit": "7470d972efa47bfecbb7bf45dd0ebb6fefcca7d4",
+    "trained_at": "2026-11-23T23:07:08+00:00",
+    "mlflow_run_id": "06ce2592fc0345669447c8a67246f443",
+    "n_markets": 7385,
+    "n_snapshots": 23135,
+    "test_period": [
+      "2026-10-04",
+      "2026-11-14"
+    ],
+    "metrics": {
+      "test_model_brier": 0.1093,
+      "test_model_log_loss": 0.3565,
+      "test_model_auc": 0.9301,
+      "test_model_ece": 0.0433,
+      "test_model_accuracy": 0.8503,
+      "test_crowd_brier": 0.1072,
+      "test_crowd_log_loss": 0.3406,
+      "test_crowd_auc": 0.9315,
+      "test_crowd_ece": 0.0323,
+      "test_crowd_accuracy": 0.8484,
+      "test_brier_skill_vs_crowd": -0.0197,
+      "test_brier_skill_ci_low": -0.0372,
+      "test_brier_skill_ci_high": -0.0051,
+      "test_trade_n_bets": 617,
+      "test_trade_bet_rate": 0.1707,
+      "test_trade_roi": -0.3797,
+      "test_n_rows": 3614,
+      "test_base_rate": 0.5028
+    }
+  },
+  "api_model_url": "https://beat-the-crowd-api-64wo2oghua-ue.a.run.app/model",
+  "served_model_card_equals_published_card": true,
+  "published_metrics_counts_features_and_test_period_match_corrected_local_run": true,
+  "data_checksums_match_corrected_local_run": true
+}
