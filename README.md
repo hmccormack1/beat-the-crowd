@@ -266,8 +266,6 @@ Use the [deployment guide](docs/deployment.md) and [corrected-release helper](sc
 | GitHub Actions | Runs automated tests, both image builds, fresh model training in Docker, and container HTTP checks on feature branches, pull requests, and `main` |
 | MLflow (local SQLite) | Tracks training parameters, metrics, model artifacts, and plots; it is not a hosted cloud service |
 
-See the [requirement-to-evidence checklist](docs/requirements-checklist.md) for the implementation, deployment, and collaboration evidence.
-
 ---
 
 ## Project structure
