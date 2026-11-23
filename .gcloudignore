@@ -1,0 +1,12 @@
+# Do not upload credentials, datasets, environments, or local run artifacts.
+.gcloudignore
+.git/
+.github/
+#!include:.gitignore
+**/.streamlit/secrets.toml
+**/.env
+**/.env.*
+**/__pycache__/
+**/.pytest_cache/
+*.log
+tmp/
